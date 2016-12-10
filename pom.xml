@@ -28,6 +28,15 @@
 	</repositories>
 	
   	<dependencies>
+		<dependency>
+			<groupId>edu.kit.ipd.parse</groupId>
+			<artifactId>asr</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.ipd.parse</groupId>
+			<artifactId>graphBuilder</artifactId>
+			<scope>provided</scope>
+		</dependency>
     	<dependency>
 			<groupId>edu.kit.ipd.parse</groupId>
 			<artifactId>luna</artifactId>
