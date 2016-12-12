@@ -57,7 +57,7 @@ public class BuildGraph {
 			Object[] array = ppd.getGraph().getNodes().toArray();
 			for (int i = 0; i < array.length; i++) {
 				INode iNode = (INode) array[i];
-				System.out.println(iNode.toString());
+				System.out.println(iNode.toString()); // ########
 //				System.out.println(iNode.getAllAttributeNamesAndValuesAsPair().toString());
 //				System.out.println(iNode.getAttributeValue("asrConfidence"));
 			}
