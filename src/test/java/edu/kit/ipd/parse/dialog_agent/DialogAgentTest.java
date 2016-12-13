@@ -17,7 +17,7 @@ import edu.kit.ipd.parse.luna.graph.ParseNodeType;
 
 public class DialogAgentTest {
 
-	@Ignore
+//	@Ignore
 	@Test // the RELIABLE_CONFIDENCE_THRESHOLD has to be 0.8 for this test
 	public void testGetMainNodesWithLowConfidence() {
 		// call target method
@@ -26,6 +26,7 @@ public class DialogAgentTest {
 		PrePipelineData ppd = bg.getGraph();
 		DialogAgent da = new DialogAgent(ppd);	
 		da.init();
+		da.reliableConfidenceThreshold = 0.8;
 		List<INode> lowConfMainNodes = da.getMainNodesWithLowConfidence(ppd);
 		List<String> lowConfMainNodesType = new ArrayList<String>();
 		for (int i = 0; i < lowConfMainNodes.size(); i++) {
@@ -48,6 +49,8 @@ public class DialogAgentTest {
 		PrePipelineData ppd = bg.getGraph();
 		DialogAgent da = new DialogAgent(ppd);	
 		da.init();
+		da.reliableConfidenceThreshold = 0.8;
+		da.minimumConfidenceThreshold = 0.1;
 //		ParseNodeType pnt = new ParseNodeType("token"); // ParseNodeType implements INodeType
 //		ParseNode pn = new ParseNode(pnt);
 //		pn.setAttributeValue("value", "bet");
@@ -56,8 +59,8 @@ public class DialogAgentTest {
 		List<String> lowConfidenceNodesAlternatives = da.determineAlternatives(lowConfMainNodes.get(0));
 		// create test list
 		List<String> testList = new ArrayList<String>();
-		testList.add("bed");
 		testList.add("bat");
+		testList.add("bed");
 		// compare
 		assertEquals(lowConfidenceNodesAlternatives, testList);
 	}
