@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.ipd.parse.luna.ILuna;
 import edu.kit.ipd.parse.luna.agent.AbstractAgent;
+import edu.kit.ipd.parse.luna.data.AbstractPipelineData;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
 import edu.kit.ipd.parse.luna.data.token.Token;
@@ -82,6 +83,7 @@ public class DialogAgent extends AbstractAgent {
 		return lowConfMainNodes;
 	}
 	
+	// get the alternative nodes for a node
 	protected List<INode> determineAlternatives(INode iNode) {
 		List<INode> alternatives = new ArrayList<INode>();
 		System.out.println(iNode.getNumberOfOutgoingArcs()); // ########
@@ -96,6 +98,7 @@ public class DialogAgent extends AbstractAgent {
 		}
 		return alternatives;
 	}
+	
 	
 	protected PrePipelineData askUser(List<INode> iNodes) {
 		PrePipelineData resultPpd = null;

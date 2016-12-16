@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.kit.ipd.multiasr.MultiASRPipelineStage;
 import edu.kit.ipd.parse.graphBuilder.GraphBuilder;
 import edu.kit.ipd.parse.graphBuilder.PipelineTest;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
@@ -20,6 +19,7 @@ import edu.kit.ipd.parse.luna.data.token.MainHypothesisToken;
 import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.pipeline.PipelineStageException;
+import edu.kit.ipd.parse.multiasr.MultiASRPipelineStage;
 import edu.kit.ipd.parse.shallownlp.ShallowNLP;
 
 public class BuildGraph {
