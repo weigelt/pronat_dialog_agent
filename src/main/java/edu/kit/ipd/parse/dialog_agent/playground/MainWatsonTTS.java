@@ -1,6 +1,6 @@
 package edu.kit.ipd.parse.dialog_agent.playground;
 
-import edu.kit.ipd.parse.dialog_agent.WatsonTTS;
+import edu.kit.ipd.parse.dialog_agent.tts.WatsonTTS;
 
 public class MainWatsonTTS {
 		

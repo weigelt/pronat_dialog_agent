@@ -1,22 +1,10 @@
 package edu.kit.ipd.parse.dialog_agent.main;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import edu.kit.ipd.parse.graphBuilder.GraphBuilder;
-import edu.kit.ipd.parse.graphBuilder.PipelineTest;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
-import edu.kit.ipd.parse.luna.data.token.Token;
-import edu.kit.ipd.parse.luna.data.token.MainHypothesisToken;
-import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.pipeline.PipelineStageException;
 import edu.kit.ipd.parse.multiasr.MultiASRPipelineStage;

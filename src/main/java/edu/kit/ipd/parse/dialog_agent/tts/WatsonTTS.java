@@ -1,4 +1,4 @@
-package edu.kit.ipd.parse.dialog_agent;
+package edu.kit.ipd.parse.dialog_agent.tts;
 
 import java.io.File;
 import java.io.FileOutputStream;

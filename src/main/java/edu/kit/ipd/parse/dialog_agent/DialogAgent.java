@@ -28,7 +28,9 @@ import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.graph.ParseArc;
 import edu.kit.ipd.parse.luna.graph.ParseNode;
 import edu.kit.ipd.parse.dialog_agent.main.BuildGraph;
+import edu.kit.ipd.parse.dialog_agent.stt.VoiceRecorder;
 import edu.kit.ipd.parse.dialog_agent.tools.ConfigManager;
+import edu.kit.ipd.parse.dialog_agent.tts.WatsonTTS;
 import edu.kit.ipd.parse.graphBuilder.GraphBuilder;
 
 public class DialogAgent extends AbstractAgent {
@@ -60,12 +62,14 @@ public class DialogAgent extends AbstractAgent {
 			lowConfidenceNodesAlternatives.add(determineAlternatives(lowConfidenceMainNodes.get(i)));
 		}
 		// TO-DO mechanism to decide for which node to ask
-		askUser(lowConfidenceNodesAlternatives.get(0));
+//		String question = phraseQuestion(lowConfidenceNodesAlternatives.get(0));
 		// activate new pipeline
+		String question = "What color do you mean?";
+		askQuestion(question);
+		PrePipelineData ppdUserAnswer = getUserAnswer();
 	}
 
-	
-	
+	// returns all nodes with confidence between given confidence thresholds
 	protected List<INode> getMainNodesWithLowConfidence(PrePipelineData ppd) {
 		List<INode> lowConfMainNodes = new ArrayList<INode>();
 		Object[] array;
@@ -83,7 +87,7 @@ public class DialogAgent extends AbstractAgent {
 		return lowConfMainNodes;
 	}
 	
-	// get the alternative nodes for a node
+	// returns the alternative nodes for a node
 	protected List<INode> determineAlternatives(INode iNode) {
 		List<INode> alternatives = new ArrayList<INode>();
 		System.out.println(iNode.getNumberOfOutgoingArcs()); // ########
@@ -99,8 +103,9 @@ public class DialogAgent extends AbstractAgent {
 		return alternatives;
 	}
 	
-	
-	protected PrePipelineData askUser(List<INode> iNodes) {
+	// not used yet
+	// this method formulates the question which should be later asked
+	protected PrePipelineData phraseQuestion(List<INode> iNodes) {
 		PrePipelineData resultPpd = null;
 		System.out.println("method: askUser");
 		for (INode iNode : iNodes) 
@@ -109,7 +114,8 @@ public class DialogAgent extends AbstractAgent {
 		return resultPpd;
 	}
 	
-	// just for one word-alternative answers (or yes and no questions)
+	// not used yet
+	// returns only one word from the user answer, if there are more words another method will be used (or yes and no questions)
 	protected INode getOneWordAnswer(PrePipelineData ppd) {
 		Object[] allAnswerGraphNodes = null;
 		INode iNode = null;
@@ -130,5 +136,18 @@ public class DialogAgent extends AbstractAgent {
 			mde.printStackTrace();
 		}
 		return iNode;
+	}
+	
+	// invokes WatsonTTS to ask the user a question
+	protected void askQuestion(String question) {
+		WatsonTTS watsonTTS = new WatsonTTS();
+		watsonTTS.synthesizeQuestion(question);
+	}
+	
+	// activates the voice recorder to receive the user answer and builds a graph out of the answer
+	protected PrePipelineData getUserAnswer() {
+		PrePipelineData ppdAnswer = null;
+		VoiceRecorder voiceRecorder = new VoiceRecorder();
+		return ppdAnswer;
 	}
 }
