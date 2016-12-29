@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
+import javax.sound.sampled.LineUnavailableException;
+
 import org.apache.commons.io.IOUtils;
 
 import com.ibm.watson.developer_cloud.http.HttpMediaType;
@@ -38,36 +40,30 @@ public class WatsonTTS {
 	}
 
 	public void synthesizeQuestion(String question) {
-		AudioFormat audioFormat = new AudioFormat(HttpMediaType.AUDIO_WAV);
+		AudioFormat audioFormat = new AudioFormat(HttpMediaType.AUDIO_FLAC);
 		InputStream inputStream = (InputStream) service.synthesize(question, Voice.getByName(props.getProperty(VOICE_PROP)), audioFormat).execute();
 		InputStream inStream = null;
 		OutputStream outStream = null;
 
 		AbsolutePath absolutePath = new AbsolutePath(props.getProperty(PATH_PROP));
-		String audioFilePath = absolutePath.getAbsolutePathFileWithTimestamp("question", "wav");
+		String audioFilePath = absolutePath.getAbsolutePathFileWithTimestamp("question", "flac");
 		File audioFile = new File(audioFilePath);
 		
-		try {
-			inStream = WaveUtils.reWriteWaveHeader(inputStream);  
+		try {  
 		    outStream = new FileOutputStream(audioFile);
 
 		    byte[] buffer = new byte[8 * 1024];
 		    int bytesRead;
-		    while ((bytesRead = inStream.read(buffer)) != -1) {
+		    while ((bytesRead = inputStream.read(buffer)) != -1) {
 		        outStream.write(buffer, 0, bytesRead);
 		    }
-		    // express inputstream
-		    ExpressTTS expressTTS = new ExpressTTS(audioFilePath);
-		    
-		    // optional: create a flac-file with the question (a wav file is already created)
-		    FLAC_FileEncoder flacEncoder = new FLAC_FileEncoder();
-		    File inputFile = new File(audioFilePath);
-		    AbsolutePath absolutePathFlac = new AbsolutePath(props.getProperty(PATH_PROP));
-			String audioFilePathFlac = absolutePathFlac.getAbsolutePathFileWithTimestamp("question", "flac");
-			File outputFile = new File(audioFilePathFlac);
-			flacEncoder.encode(inputFile, outputFile);   
-		} catch (IOException e) {
-			e.printStackTrace();
+		    // express the question
+		    AudioPlayer audioPlayer = new AudioPlayer();
+		    audioPlayer.decode(audioFilePath);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} catch (LineUnavailableException lue) {
+			lue.printStackTrace();
 		} finally {
 		    IOUtils.closeQuietly(inStream);
 		    IOUtils.closeQuietly(outStream);
