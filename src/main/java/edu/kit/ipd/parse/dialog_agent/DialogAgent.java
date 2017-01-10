@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +38,15 @@ public class DialogAgent extends AbstractAgent {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DialogAgent.class); // DialogAgent.class is equals to getClass()
 
+	Path path;
 	PrePipelineData ppd;
 	private Properties props;
 	double reliableConfidenceThreshold;
 	double minimumConfidenceThreshold;
 	
 	// constructor
-	public DialogAgent(PrePipelineData ppd) {
-		this.ppd = ppd;
+	public DialogAgent(Path path) {
+		this.path = path;
 	}
 	
 	@Override
@@ -56,6 +58,7 @@ public class DialogAgent extends AbstractAgent {
 	
 	@Override
 	public void exec() {
+		ppd = buildGraph(path);
 		List<INode> lowConfidenceMainNodes = getMainNodesWithLowConfidence(ppd);
 		List<List<INode>> lowConfidenceNodesAlternatives = new ArrayList<List<INode>>(); 
 		for (int i = 0; i < lowConfidenceMainNodes.size(); i++) {
@@ -64,11 +67,76 @@ public class DialogAgent extends AbstractAgent {
 		// TO-DO mechanism to decide for which node to ask
 //		String question = phraseQuestion(lowConfidenceNodesAlternatives.get(0));
 		// activate new pipeline
-		String question = "What color do you mean?";
+		INode iNodeProcessed = null;
+		String question = "Do you mean juice?";
 		askQuestion(question);
 		PrePipelineData ppdUserAnswer = getUserAnswer();
+		if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
+			verifyNode(iNodeProcessed);
+		} else if  (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
+			// the user meant something else, we have to ask again
+		} else {
+			// the user did not answer properly lets ask again with advice
+			String adviceQuestion = "Please answer the following question just with yes or no. " + question;
+			askQuestion(adviceQuestion);
+			ppdUserAnswer = getUserAnswer();
+			if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
+				verifyNode(iNodeProcessed);
+			} else if  (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
+				// the user meant something else, we have to ask again
+			} else {
+				// break the user did not answered properly again we stop here
+			}
+		}
 	}
-
+	
+	// examine if the answer was yes or no
+	protected String examineYesNoAnswer(PrePipelineData ppd) {
+		Object[] array = null;
+		try {
+			array = ppd.getGraph().getNodes().toArray();			
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+		
+		// this is investigates if the answer is just one word
+		int countMainNodes = 0; 
+		for (int i = 0; i < array.length; i++) {
+			INode iNode = (INode) array[i];
+			if (iNode.getType().getName().toString().equals("token")) {
+				countMainNodes++;
+			}
+		}
+		
+		if (countMainNodes == 1) {
+			INode iNode = (INode) array[0];
+			if (iNode.getAttributeValue("value").equals("yes")) {
+				return "YES";
+			} else if (iNode.getAttributeValue("value").equals("no")) {
+				return "NO";		
+			} else {
+				return "WORD_NOT_UNDERSTOOD";
+				// advice this is a yes no question
+//				askQuestionAdviceYesNo(question);
+			}
+		} else {
+			return "TO_MANY_WORDS";
+			// answer not understood
+//			askQuestionAdviceYesNo(question);
+		}
+	}
+	
+	protected void verifyNode(INode iNode) {
+//		iNode.setAttributeValue("asrConfidence", 1.0);
+//		Set <? extends IArc> outgoingArcs = iNode.getOutgoingArcs();
+//		for (IArc outgoingArc : outgoingArcs) {
+//			INode targetNode = outgoingArc.getTargetNode();
+//			// remove methods for nodes and arcs are missing
+//		}
+//		System.out.println("YES");		
+//		System.out.println(iNode.getOutgoingArcs());	
+	}
+	
 	// returns all nodes with confidence between given confidence thresholds
 	protected List<INode> getMainNodesWithLowConfidence(PrePipelineData ppd) {
 		List<INode> lowConfMainNodes = new ArrayList<INode>();
@@ -137,17 +205,25 @@ public class DialogAgent extends AbstractAgent {
 		}
 		return iNode;
 	}
+		
+	// activates the voice recorder to receive the user answer as a file path and then uses buildgraph() to return PrePipeLineData
+	protected PrePipelineData getUserAnswer() {
+		VoiceRecorder voiceRecorder = new VoiceRecorder();
+		Path pathAnswer = voiceRecorder.getAnswer();
+		return buildGraph(pathAnswer);
+	}
+	
+	// creates a graph out of a flac file
+	protected PrePipelineData buildGraph(Path path) {
+		BuildGraph bg = new BuildGraph(path);
+		bg.buildGraph();
+		PrePipelineData ppd = bg.getGraph();
+		return ppd;
+	}
 	
 	// invokes WatsonTTS to ask the user a question
 	protected void askQuestion(String question) {
 		WatsonTTS watsonTTS = new WatsonTTS();
 		watsonTTS.synthesizeQuestion(question);
-	}
-	
-	// activates the voice recorder to receive the user answer and builds a graph out of the answer
-	protected PrePipelineData getUserAnswer() {
-		PrePipelineData ppdAnswer = null;
-		VoiceRecorder voiceRecorder = new VoiceRecorder();
-		return ppdAnswer;
 	}
 }

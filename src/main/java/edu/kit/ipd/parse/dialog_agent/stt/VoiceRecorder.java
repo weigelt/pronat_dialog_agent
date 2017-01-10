@@ -45,6 +45,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import javax.swing.BoxLayout;
@@ -124,7 +126,7 @@ public class VoiceRecorder extends JPanel implements ActionListener {
 		}
 	}
 
-	public String getAnswer() {
+	public Path getAnswer() {
 		VoiceRecorder vc = new VoiceRecorder();
 		JFrame f = new JFrame("Capture/Playback");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -141,6 +143,7 @@ public class VoiceRecorder extends JPanel implements ActionListener {
 			// wait till an audio file containing the answer is created
 		}
 		f.dispose();
-		return absoluteFilePath;
+		Path path = Paths.get(absoluteFilePath);
+		return path;
 	}
 }
