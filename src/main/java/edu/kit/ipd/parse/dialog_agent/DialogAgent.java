@@ -19,6 +19,8 @@ import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
 import edu.kit.ipd.parse.luna.graph.IArc;
 import edu.kit.ipd.parse.luna.graph.INode;
+import edu.kit.ipd.parse.luna.graph.ParseArc;
+import edu.kit.ipd.parse.luna.graph.ParseNode;
 import edu.kit.ipd.parse.dialog_agent.main.BuildGraph;
 import edu.kit.ipd.parse.dialog_agent.stt.VoiceRecorder;
 import edu.kit.ipd.parse.dialog_agent.tools.ConfigManager;
@@ -70,28 +72,119 @@ public class DialogAgent extends AbstractAgent {
 			System.out.println("low confidence " + lowConfidenceMainNode.toString());
 		}
 		
-		System.out.println("low confidence " + iNodeProcessed.toString());
-//		String question = phraseQuestion(lowConfidenceNodesAlternatives.get(0));
-		String question = "Do you mean " + iNodeProcessed.getAttributeValue("value") + "?";
-		askQuestion(question);
+		askYesNoQuestion(iNodeProcessed);
+		
+		// the following just prints the final graph
+		Object[] array = null;
+		try {
+			array = ppd.getGraph().getNodes().toArray();			
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+		for (int i = 0; i < array.length; i++) {
+			INode iNode = (INode) array[i];
+			System.out.println(iNode.toString()); 
+		}
+	}
+	
+	// asks open questions
+	protected void askOpenQuestion(INode iNode) {
+		String openQuestion = "What did you mean?";
+		enunciateQuestion(openQuestion);
 		PrePipelineData ppdUserAnswer = getUserAnswer();
 		
-		if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
-			verifyNode(iNodeProcessed);
-		} else if  (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
-			// the user meant something else, we have to ask again
-		} else {
-			// the user did not answer properly lets ask again with advice
-			String adviceQuestion = "Please answer the following question just with yes or no. " + question;
-			askQuestion(adviceQuestion);
+		if (examineOpenAnswer(ppdUserAnswer).equals("REPLACE")) {
+//			replaceNode(iNode);
+		} else if (examineOpenAnswer(ppdUserAnswer).equals("WORD_NOT_UNDERSTOOD")) {
+			String adviceQuestion = "Sorry, I did not understand you. Please say it again.";
+			enunciateQuestion(adviceQuestion);
 			ppdUserAnswer = getUserAnswer();
-			if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
-				verifyNode(iNodeProcessed);
-			} else if  (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
-				// the user meant something else, we have to ask again
+			if (examineOpenAnswer(ppdUserAnswer).equals("REPLACE")) {
+//				replaceNode(iNode);
 			} else {
 				// break the user did not answered properly again we stop here
 			}
+		} else if (examineOpenAnswer(ppdUserAnswer).equals("TO_MANY_WORDS")) {
+			String adviceQuestion = "Please answer again but just with one word.";
+			enunciateQuestion(adviceQuestion);
+			ppdUserAnswer = getUserAnswer();
+			if (examineOpenAnswer(ppdUserAnswer).equals("REPLACE")) {
+//				replaceNode(iNode);
+			}  else {
+				// break the user did not answered properly again we stop here
+			}
+		}
+	}
+	
+	// replaces a node
+	protected void replaceNode(INode iNode, PrePipelineData ppd) {
+		Object[] array = null;
+		try {
+			array = ppd.getGraph().getNodes().toArray();			
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+
+//		System.out.println(" wr wer  " + iNode.toString());
+//		iNode = (INode) array[0];
+//		System.out.println(" wr wer  " + iNode.toString());
+		
+		
+//		try {
+//			ppd.getGraph().getNodes().add(iNode); // wann verwendet ihr denn add node??
+//			System.out.println("Final print");
+//			System.out.println(ppd.getGraph().showGraph());
+//		} catch (final MissingDataException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	}
+	
+	// asks a yes or no question BUT can also initiate open questions
+	protected void askYesNoQuestion(INode iNode) {
+		System.out.println("low confidence " + iNode.toString());
+		// replace with a question pattern which uses the other nodes of this sentence
+		String question = "Do you mean " + iNode.getAttributeValue("value") + "?";
+		enunciateQuestion(question);
+		PrePipelineData ppdUserAnswer = getUserAnswer();
+		
+		if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
+			verifyNode(iNode);
+		} else if (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
+			askOpenQuestion(iNode);
+		} else {
+			// the user did not answer properly lets ask again with advice
+			String adviceQuestion = "Please answer the following question just with yes or no. " + question;
+			enunciateQuestion(adviceQuestion);
+			ppdUserAnswer = getUserAnswer();
+			if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
+				verifyNode(iNode);
+			} else if  (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
+				askOpenQuestion(iNode);
+			} else {
+				// break the user did not answered properly again we stop here
+			}
+		}
+	}
+	
+	// examine if an open question consists of one word
+	protected String examineOpenAnswer(PrePipelineData ppd) {
+		Object[] array = null;
+		try {
+			array = ppd.getGraph().getNodes().toArray();			
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+		
+		if (countMainNodes(array) == 1) { // if the answer contains one word
+			INode iNode = (INode) array[0];
+			if (Double.parseDouble(iNode.getAttributeValue("asrConfidence").toString()) > reliableConfidenceThreshold) {
+				return "REPLACE";
+			} else {
+				return "WORD_NOT_UNDERSTOOD";
+			}
+		} else {
+			return "TO_MANY_WORDS";
 		}
 	}
 	
@@ -104,16 +197,7 @@ public class DialogAgent extends AbstractAgent {
 			mde.printStackTrace();
 		}
 		
-		// this is investigates if the answer is just one word
-		int countMainNodes = 0; 
-		for (int i = 0; i < array.length; i++) {
-			INode iNode = (INode) array[i];
-			if (iNode.getType().getName().toString().equals("token")) {
-				countMainNodes++;
-			}
-		}
-		
-		if (countMainNodes == 1) {
+		if (countMainNodes(array) == 1) { // if the answer contains one word
 			INode iNode = (INode) array[0];
 			if (iNode.getAttributeValue("value").equals("yes")) {
 				return "YES";
@@ -121,16 +205,27 @@ public class DialogAgent extends AbstractAgent {
 				return "NO";		
 			} else {
 				return "WORD_NOT_UNDERSTOOD";
-				// advice this is a yes no question
-//				askQuestionAdviceYesNo(question);
+				// add advice that this is a yes or no question 
 			}
 		} else {
 			return "TO_MANY_WORDS";
-			// answer not understood
-//			askQuestionAdviceYesNo(question);
+			// add advice that this is a yes or no question (just one word)
 		}
 	}
 	
+	// count the main nodes of an array containing nodes
+	protected int countMainNodes(Object[] array) {
+		int counter = 0;
+		for (int i = 0; i < array.length; i++) {
+			INode iNode = (INode) array[i];
+			if (iNode.getType().getName().toString().equals("token")) {
+				counter++;
+			}
+		}
+		return counter;
+	}
+	
+	// verifies a node with low confidence (and removes his alternative nodes)
 	protected void verifyNode(INode iNode) {
 		iNode.setAttributeValue("asrConfidence", 1.0);
 		System.out.println(iNode.toString());
@@ -228,7 +323,7 @@ public class DialogAgent extends AbstractAgent {
 	}
 	
 	// invokes WatsonTTS to ask the user a question
-	protected void askQuestion(String question) {
+	protected void enunciateQuestion(String question) {
 		WatsonTTS watsonTTS = new WatsonTTS();
 		watsonTTS.synthesizeQuestion(question);
 	}

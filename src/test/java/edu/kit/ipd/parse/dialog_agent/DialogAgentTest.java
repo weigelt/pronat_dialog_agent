@@ -195,4 +195,81 @@ public class DialogAgentTest {
 		String correctAnswer = da.examineYesNoAnswer(ppdAnswer);
 		assertEquals(correctAnswer, "TO_MANY_WORDS");
 	}
+	
+	@Ignore
+	@Test 
+	public void testVerifyNode() {
+		BuildGraph bg = new BuildGraph(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));
+		bg.buildGraph();
+		PrePipelineData ppd = bg.getGraph();
+		Object[] array = null;
+		try {
+			array = ppd.getGraph().getNodes().toArray();			
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+		
+		DialogAgent da = new DialogAgent(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));	
+		da.init();
+		da.verifyNode((INode) array[0]);
+		
+		double correctDouble = -1;
+		try {
+//			System.out.println(ppd.getGraph().showGraph());
+			array = ppd.getGraph().getNodes().toArray();
+//			for (int i = 0; i < array.length; i++) {
+//				INode iNode = (INode) array[i];
+//				System.out.println(iNode.toString()); 
+//			}
+			INode iNode = (INode) array[0];
+			correctDouble = Double.parseDouble(iNode.getAttributeValue("asrConfidence").toString()); 
+		} catch (final MissingDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertEquals(correctDouble, 1.0, 0.00001);
+	}
+	
+//	@Ignore
+	@Test 
+	public void testReplaceNode() {
+		// create a graph to modify
+		BuildGraph bg = new BuildGraph(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));
+		bg.buildGraph();
+		PrePipelineData ppd = bg.getGraph();
+		Object[] array = null;
+		try {
+			array = ppd.getGraph().getNodes().toArray();			
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+		
+		// create new node 
+		BuildGraph bgNewNode = new BuildGraph(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:36:06 CET 2017.flac"));
+		bgNewNode.buildGraph();
+		PrePipelineData ppdNewNode = bgNewNode.getGraph();
+		
+		// initialize DialogAgent
+		DialogAgent da = new DialogAgent(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));	
+		da.init();
+		
+		// test method
+		da.replaceNode((INode) array[0], ppdNewNode);
+		
+		INode correctINode = null;
+		try {
+			System.out.println(ppdNewNode.getGraph().showGraph());
+			System.out.println(ppd.getGraph().showGraph());
+			array = ppd.getGraph().getNodes().toArray();
+			for (int i = 0; i < array.length; i++) {
+				INode iNode = (INode) array[i];
+				System.out.println(iNode.toString()); 
+			}
+			correctINode = (INode) array[0];
+		} catch (final MissingDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertEquals(correctINode.getAttributeValue("value"), "water");
+	}
 }
