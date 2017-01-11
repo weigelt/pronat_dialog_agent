@@ -14,20 +14,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.ipd.parse.luna.ILuna;
 import edu.kit.ipd.parse.luna.agent.AbstractAgent;
-import edu.kit.ipd.parse.luna.data.AbstractPipelineData;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
-import edu.kit.ipd.parse.luna.data.token.Token;
-import edu.kit.ipd.parse.luna.event.AbortEvent;
-import edu.kit.ipd.parse.luna.event.IEvent;
-import edu.kit.ipd.parse.luna.event.UpdateEvent;
 import edu.kit.ipd.parse.luna.graph.IArc;
-import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.graph.INode;
-import edu.kit.ipd.parse.luna.graph.ParseArc;
-import edu.kit.ipd.parse.luna.graph.ParseNode;
 import edu.kit.ipd.parse.dialog_agent.main.BuildGraph;
 import edu.kit.ipd.parse.dialog_agent.stt.VoiceRecorder;
 import edu.kit.ipd.parse.dialog_agent.tools.ConfigManager;
@@ -64,13 +55,27 @@ public class DialogAgent extends AbstractAgent {
 		for (int i = 0; i < lowConfidenceMainNodes.size(); i++) {
 			lowConfidenceNodesAlternatives.add(determineAlternatives(lowConfidenceMainNodes.get(i)));
 		}
-		// TO-DO mechanism to decide for which node to ask
-//		String question = phraseQuestion(lowConfidenceNodesAlternatives.get(0));
-		// activate new pipeline
+		
+		// take the main node with the lowest confidence and verify him
 		INode iNodeProcessed = null;
-		String question = "Do you mean juice?";
+		for (INode lowConfidenceMainNode : lowConfidenceMainNodes) {
+			if (iNodeProcessed != null) {
+				if (Double.parseDouble(iNodeProcessed.getAttributeValue("asrConfidence").toString()) > 
+						Double.parseDouble(lowConfidenceMainNode.getAttributeValue("asrConfidence").toString())) {
+					iNodeProcessed = lowConfidenceMainNode;			
+				}
+			} else { 
+				iNodeProcessed = lowConfidenceMainNode;
+			}
+			System.out.println("low confidence " + lowConfidenceMainNode.toString());
+		}
+		
+		System.out.println("low confidence " + iNodeProcessed.toString());
+//		String question = phraseQuestion(lowConfidenceNodesAlternatives.get(0));
+		String question = "Do you mean " + iNodeProcessed.getAttributeValue("value") + "?";
 		askQuestion(question);
 		PrePipelineData ppdUserAnswer = getUserAnswer();
+		
 		if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
 			verifyNode(iNodeProcessed);
 		} else if  (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
@@ -127,7 +132,8 @@ public class DialogAgent extends AbstractAgent {
 	}
 	
 	protected void verifyNode(INode iNode) {
-//		iNode.setAttributeValue("asrConfidence", 1.0);
+		iNode.setAttributeValue("asrConfidence", 1.0);
+		System.out.println(iNode.toString());
 //		Set <? extends IArc> outgoingArcs = iNode.getOutgoingArcs();
 //		for (IArc outgoingArc : outgoingArcs) {
 //			INode targetNode = outgoingArc.getTargetNode();
@@ -144,9 +150,9 @@ public class DialogAgent extends AbstractAgent {
 		try {
 			array = ppd.getGraph().getNodes().toArray();
 			for (int i = 0; i < array.length; i++) {
-				ParseNode pNode = (ParseNode) array[i];
-				if (pNode.getType().getName().toString().equals("token") && ((Double) pNode.getAttributeValue("asrConfidence") < reliableConfidenceThreshold)) {
-					lowConfMainNodes.add(pNode);
+				INode iNode = (INode) array[i];
+				if (iNode.getType().getName().toString().equals("token") && ((Double) iNode.getAttributeValue("asrConfidence") < reliableConfidenceThreshold)) {
+					lowConfMainNodes.add(iNode);
 				}
 			}
 		} catch (MissingDataException mde) {
