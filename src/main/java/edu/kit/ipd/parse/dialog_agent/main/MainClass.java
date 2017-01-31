@@ -9,12 +9,10 @@ public class MainClass {
 
 	public static void main(String[] args) {
 		// path to audio.flac file, in future versions via config
-		Path path = Paths.get("/Users/Mario/Parse/AudioArchive/voiceRecord-Tue Jan 10 08:16:01 CET 2017.flac");
-		
-//		// build the graph, in future done by the framework
-//		BuildGraph bg = new BuildGraph(path);
-//		bg.buildGraph();
-//		PrePipelineData ppd = bg.getGraph(); // just works after building the graph
+//		Path path = Paths.get("/Users/Mario/Parse/AudioArchive/voiceRecord-Tue Jan 10 08:16:01 CET 2017.flac");
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s7p04.flac");
+		Path path = Paths.get("/Users/Mario/Parse/AudioArchive/voiceRecord-Tue Jan 31 17:20:30 CET 2017.flac");
+
 		
 		// start dialog agent and give it the graph
 		DialogAgent da = new DialogAgent(path);

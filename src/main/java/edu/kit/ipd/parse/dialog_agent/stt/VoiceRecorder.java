@@ -127,10 +127,9 @@ public class VoiceRecorder extends JPanel implements ActionListener {
 	}
 
 	public Path getAnswer() {
-		VoiceRecorder vc = new VoiceRecorder();
 		JFrame f = new JFrame("Capture/Playback");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.getContentPane().add("Center", vc);
+		f.getContentPane().add("Center", this);
 		f.pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = 360;

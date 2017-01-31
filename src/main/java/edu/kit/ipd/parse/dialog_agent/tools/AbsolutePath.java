@@ -1,6 +1,8 @@
 package edu.kit.ipd.parse.dialog_agent.tools;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AbsolutePath {
 
@@ -34,9 +36,11 @@ public class AbsolutePath {
 		return absolutePathFile;
 	}
 	
-	public String getAbsolutePathFileWithTimestamp(String fileName, String format) {
-		String timestamp = new java.util.Date().toString();
-		String absolutePathFileWithTimestamp = absolutePath + fileName + timestamp + "." + format;
+	public synchronized String getAbsolutePathFileWithTimestamp(String fileName, String format) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd_H:mm:ss:SSS");
+		Date now = new Date();
+		String timestamp = dateFormat.format(now);
+		String absolutePathFileWithTimestamp = absolutePath + timestamp + fileName + "." + format;	
 		return absolutePathFileWithTimestamp;
 	}
 }

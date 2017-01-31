@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import edu.kit.ipd.parse.graphBuilder.GraphBuilder;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
+import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.pipeline.PipelineStageException;
 import edu.kit.ipd.parse.multiasr.MultiASRPipelineStage;
@@ -29,7 +30,7 @@ public class BuildGraph {
 		masr.init();
 	}
 	
-	public void buildGraph() {
+	public IGraph getGraph() throws MissingDataException {
 		ppd = new PrePipelineData();
 		ppd.setInputFilePath(inputPath);
 		try {
@@ -53,9 +54,15 @@ public class BuildGraph {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	public PrePipelineData getGraph() {
-		return ppd;
+		IGraph graph = null;
+		try {
+			graph = ppd.getGraph();
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+		if (graph.equals(null)) {
+			throw new MissingDataException();
+		}
+		return graph;
 	}
 }

@@ -18,6 +18,7 @@ import edu.kit.ipd.parse.luna.agent.AbstractAgent;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
 import edu.kit.ipd.parse.luna.graph.IArc;
+import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.graph.ParseArc;
 import edu.kit.ipd.parse.luna.graph.ParseNode;
@@ -31,15 +32,16 @@ public class DialogAgent extends AbstractAgent {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DialogAgent.class); // DialogAgent.class is equals to getClass()
 
-	Path path;
-	PrePipelineData ppd;
+	protected Path path;
+	protected IGraph graph;
 	private Properties props;
-	double reliableConfidenceThreshold;
-	double minimumConfidenceThreshold;
+	protected double reliableConfidenceThreshold;
+	protected double minimumConfidenceThreshold;
 	
 	// constructor
 	public DialogAgent(Path path) {
 		this.path = path;
+		graph = buildGraph(path);
 	}
 	
 	@Override
@@ -51,8 +53,7 @@ public class DialogAgent extends AbstractAgent {
 	
 	@Override
 	public void exec() {
-		ppd = buildGraph(path);
-		List<INode> lowConfidenceMainNodes = getMainNodesWithLowConfidence(ppd);
+		List<INode> lowConfidenceMainNodes = getMainNodesWithLowConfidence();
 		List<List<INode>> lowConfidenceNodesAlternatives = new ArrayList<List<INode>>(); 
 		for (int i = 0; i < lowConfidenceMainNodes.size(); i++) {
 			lowConfidenceNodesAlternatives.add(determineAlternatives(lowConfidenceMainNodes.get(i)));
@@ -72,15 +73,11 @@ public class DialogAgent extends AbstractAgent {
 			System.out.println("low confidence " + lowConfidenceMainNode.toString());
 		}
 		
-		askYesNoQuestion(iNodeProcessed);
+		if (!(iNodeProcessed == null))
+			askYesNoQuestion(iNodeProcessed);
 		
 		// the following just prints the final graph
-		Object[] array = null;
-		try {
-			array = ppd.getGraph().getNodes().toArray();			
-		} catch (MissingDataException mde) {
-			mde.printStackTrace();
-		}
+		Object[] array = graph.getNodes().toArray();		
 		for (int i = 0; i < array.length; i++) {
 			INode iNode = (INode) array[i];
 			System.out.println(iNode.toString()); 
@@ -91,53 +88,29 @@ public class DialogAgent extends AbstractAgent {
 	protected void askOpenQuestion(INode iNode) {
 		String openQuestion = "What did you mean?";
 		enunciateQuestion(openQuestion);
-		PrePipelineData ppdUserAnswer = getUserAnswer();
+		IGraph userAnswerGraph = getUserAnswer();
 		
-		if (examineOpenAnswer(ppdUserAnswer).equals("REPLACE")) {
-//			replaceNode(iNode);
-		} else if (examineOpenAnswer(ppdUserAnswer).equals("WORD_NOT_UNDERSTOOD")) {
+		if (examineOpenAnswer(userAnswerGraph).equals("REPLACE")) {
+			replaceNode(iNode, (INode) userAnswerGraph.getNodes().toArray()[0]);
+		} else if (examineOpenAnswer(userAnswerGraph).equals("WORD_NOT_UNDERSTOOD")) {
 			String adviceQuestion = "Sorry, I did not understand you. Please say it again.";
 			enunciateQuestion(adviceQuestion);
-			ppdUserAnswer = getUserAnswer();
-			if (examineOpenAnswer(ppdUserAnswer).equals("REPLACE")) {
-//				replaceNode(iNode);
+			userAnswerGraph = getUserAnswer();
+			if (examineOpenAnswer(userAnswerGraph).equals("REPLACE")) {
+				replaceNode(iNode, (INode) userAnswerGraph.getNodes().toArray()[0]);
 			} else {
 				// break the user did not answered properly again we stop here
 			}
-		} else if (examineOpenAnswer(ppdUserAnswer).equals("TO_MANY_WORDS")) {
+		} else if (examineOpenAnswer(userAnswerGraph).equals("TO_MANY_WORDS")) {
 			String adviceQuestion = "Please answer again but just with one word.";
 			enunciateQuestion(adviceQuestion);
-			ppdUserAnswer = getUserAnswer();
-			if (examineOpenAnswer(ppdUserAnswer).equals("REPLACE")) {
-//				replaceNode(iNode);
+			userAnswerGraph = getUserAnswer();
+			if (examineOpenAnswer(userAnswerGraph).equals("REPLACE")) {
+				replaceNode(iNode, (INode) userAnswerGraph.getNodes().toArray()[0]);
 			}  else {
 				// break the user did not answered properly again we stop here
 			}
 		}
-	}
-	
-	// replaces a node
-	protected void replaceNode(INode iNode, PrePipelineData ppd) {
-		Object[] array = null;
-		try {
-			array = ppd.getGraph().getNodes().toArray();			
-		} catch (MissingDataException mde) {
-			mde.printStackTrace();
-		}
-
-//		System.out.println(" wr wer  " + iNode.toString());
-//		iNode = (INode) array[0];
-//		System.out.println(" wr wer  " + iNode.toString());
-		
-		
-//		try {
-//			ppd.getGraph().getNodes().add(iNode); // wann verwendet ihr denn add node??
-//			System.out.println("Final print");
-//			System.out.println(ppd.getGraph().showGraph());
-//		} catch (final MissingDataException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 	}
 	
 	// asks a yes or no question BUT can also initiate open questions
@@ -146,20 +119,20 @@ public class DialogAgent extends AbstractAgent {
 		// replace with a question pattern which uses the other nodes of this sentence
 		String question = "Do you mean " + iNode.getAttributeValue("value") + "?";
 		enunciateQuestion(question);
-		PrePipelineData ppdUserAnswer = getUserAnswer();
+		IGraph userAnswerGraph = getUserAnswer();
 		
-		if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
+		if (examineYesNoAnswer(userAnswerGraph).equals("YES")) {
 			verifyNode(iNode);
-		} else if (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
+		} else if (examineYesNoAnswer(userAnswerGraph).equals("NO")) {
 			askOpenQuestion(iNode);
 		} else {
 			// the user did not answer properly lets ask again with advice
 			String adviceQuestion = "Please answer the following question just with yes or no. " + question;
 			enunciateQuestion(adviceQuestion);
-			ppdUserAnswer = getUserAnswer();
-			if (examineYesNoAnswer(ppdUserAnswer).equals("YES")) {
+			userAnswerGraph = getUserAnswer();
+			if (examineYesNoAnswer(userAnswerGraph).equals("YES")) {
 				verifyNode(iNode);
-			} else if  (examineYesNoAnswer(ppdUserAnswer).equals("NO")) {
+			} else if  (examineYesNoAnswer(userAnswerGraph).equals("NO")) {
 				askOpenQuestion(iNode);
 			} else {
 				// break the user did not answered properly again we stop here
@@ -167,14 +140,16 @@ public class DialogAgent extends AbstractAgent {
 		}
 	}
 	
+	// replaces a node
+	protected void replaceNode(INode oldNode, INode newNode) {
+		removeAlternativeNodes(oldNode);
+		graph.replaceNode(oldNode, newNode, false);
+	}
+	
 	// examine if an open question consists of one word
-	protected String examineOpenAnswer(PrePipelineData ppd) {
+	protected String examineOpenAnswer(IGraph graph) {
 		Object[] array = null;
-		try {
-			array = ppd.getGraph().getNodes().toArray();			
-		} catch (MissingDataException mde) {
-			mde.printStackTrace();
-		}
+		array = graph.getNodes().toArray();	
 		
 		if (countMainNodes(array) == 1) { // if the answer contains one word
 			INode iNode = (INode) array[0];
@@ -189,13 +164,9 @@ public class DialogAgent extends AbstractAgent {
 	}
 	
 	// examine if the answer was yes or no
-	protected String examineYesNoAnswer(PrePipelineData ppd) {
+	protected String examineYesNoAnswer(IGraph graph) {
 		Object[] array = null;
-		try {
-			array = ppd.getGraph().getNodes().toArray();			
-		} catch (MissingDataException mde) {
-			mde.printStackTrace();
-		}
+		array = graph.getNodes().toArray();		
 		
 		if (countMainNodes(array) == 1) { // if the answer contains one word
 			INode iNode = (INode) array[0];
@@ -225,33 +196,45 @@ public class DialogAgent extends AbstractAgent {
 		return counter;
 	}
 	
-	// verifies a node with low confidence (and removes his alternative nodes)
+	// verifies a node with low confidence and removes his alternative nodes
 	protected void verifyNode(INode iNode) {
 		iNode.setAttributeValue("asrConfidence", 1.0);
-		System.out.println(iNode.toString());
-//		Set <? extends IArc> outgoingArcs = iNode.getOutgoingArcs();
-//		for (IArc outgoingArc : outgoingArcs) {
-//			INode targetNode = outgoingArc.getTargetNode();
-//			// remove methods for nodes and arcs are missing
-//		}
-//		System.out.println("YES");		
-//		System.out.println(iNode.getOutgoingArcs());	
+		removeAlternativeNodes(iNode);
 	}
 	
+	// remove the alternative nodes of a node
+	protected void removeAlternativeNodes(INode iNode) {
+		// select alternative nodes 
+		Set <? extends IArc> outgoingArcs = iNode.getOutgoingArcs();
+		List<INode> alternativeNodes = new ArrayList<INode>();
+		System.out.println(iNode.toString());
+		for (IArc outgoingArc : outgoingArcs) {
+			INode targetNode = outgoingArc.getTargetNode();
+			if (targetNode.getType().getName().equals("alternative_token")) {
+				alternativeNodes.add(targetNode);
+			}
+		}
+
+		// delete alternative nodes (if you try to delete in the for-loop above you
+		// will receive a ConcurrentModificationException because you will have two
+		// concurrent threads - one for the iteration and one which tries to delete)
+		while(!alternativeNodes.isEmpty()) {
+			graph.deleteNode(alternativeNodes.get(0));
+			alternativeNodes.remove(0);
+		}	
+	}
+		
+		
 	// returns all nodes with confidence between given confidence thresholds
-	protected List<INode> getMainNodesWithLowConfidence(PrePipelineData ppd) {
+	protected List<INode> getMainNodesWithLowConfidence() {
 		List<INode> lowConfMainNodes = new ArrayList<INode>();
 		Object[] array;
-		try {
-			array = ppd.getGraph().getNodes().toArray();
-			for (int i = 0; i < array.length; i++) {
-				INode iNode = (INode) array[i];
-				if (iNode.getType().getName().toString().equals("token") && ((Double) iNode.getAttributeValue("asrConfidence") < reliableConfidenceThreshold)) {
-					lowConfMainNodes.add(iNode);
-				}
+		array = graph.getNodes().toArray();
+		for (int i = 0; i < array.length; i++) {
+			INode iNode = (INode) array[i];
+			if (iNode.getType().getName().toString().equals("token") && ((Double) iNode.getAttributeValue("asrConfidence") < reliableConfidenceThreshold)) {
+				lowConfMainNodes.add(iNode);
 			}
-		} catch (MissingDataException mde) {
-			mde.printStackTrace();
 		}
 		return lowConfMainNodes;
 	}
@@ -285,41 +268,41 @@ public class DialogAgent extends AbstractAgent {
 	
 	// not used yet
 	// returns only one word from the user answer, if there are more words another method will be used (or yes and no questions)
-	protected INode getOneWordAnswer(PrePipelineData ppd) {
+	protected INode getOneWordAnswer(IGraph graph) {
 		Object[] allAnswerGraphNodes = null;
 		INode iNode = null;
 		int counter = 0; 
-		try {
-			allAnswerGraphNodes = ppd.getGraph().getNodes().toArray();
-			for (int i = 0; i < allAnswerGraphNodes.length; i++) {
-				INode in = (INode) allAnswerGraphNodes[i];			
-				if (in.getType().getName().toString().equals("token")) {
-					iNode = in;
-					counter++;
-					if (counter >= 2) {
-						return null; // a return value that indicates to many tokens would be better
-					}
+		allAnswerGraphNodes = graph.getNodes().toArray();
+		for (int i = 0; i < allAnswerGraphNodes.length; i++) {
+			INode in = (INode) allAnswerGraphNodes[i];			
+			if (in.getType().getName().toString().equals("token")) {
+				iNode = in;
+				counter++;
+				if (counter >= 2) {
+					return null; // a return value that indicates to many tokens would be better
 				}
 			}
-		} catch (MissingDataException mde) {
-			mde.printStackTrace();
 		}
 		return iNode;
 	}
 		
 	// activates the voice recorder to receive the user answer as a file path and then uses buildgraph() to return PrePipeLineData
-	protected PrePipelineData getUserAnswer() {
+	protected IGraph getUserAnswer() {
 		VoiceRecorder voiceRecorder = new VoiceRecorder();
 		Path pathAnswer = voiceRecorder.getAnswer();
 		return buildGraph(pathAnswer);
 	}
 	
 	// creates a graph out of a flac file
-	protected PrePipelineData buildGraph(Path path) {
+	protected IGraph buildGraph(Path path) {
 		BuildGraph bg = new BuildGraph(path);
-		bg.buildGraph();
-		PrePipelineData ppd = bg.getGraph();
-		return ppd;
+		IGraph graph = null;
+		try {
+			graph = bg.getGraph();
+		} catch (MissingDataException mde) {
+			mde.printStackTrace();
+		}
+		return graph;
 	}
 	
 	// invokes WatsonTTS to ask the user a question
