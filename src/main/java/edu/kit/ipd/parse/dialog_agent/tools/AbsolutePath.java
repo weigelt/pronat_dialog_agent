@@ -36,7 +36,7 @@ public class AbsolutePath {
 		return absolutePathFile;
 	}
 	
-	public synchronized String getAbsolutePathFileWithTimestamp(String fileName, String format) {
+	public String getAbsolutePathFileWithTimestamp(String fileName, String format) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd_H:mm:ss:SSS");
 		Date now = new Date();
 		String timestamp = dateFormat.format(now);

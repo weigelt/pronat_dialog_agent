@@ -15,11 +15,9 @@ import com.ibm.watson.developer_cloud.http.HttpMediaType;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
 
 import edu.kit.ipd.parse.dialog_agent.tools.AbsolutePath;
 import edu.kit.ipd.parse.dialog_agent.tools.ConfigManager;
-import net.sourceforge.javaflacencoder.FLAC_FileEncoder;
 
 public class WatsonTTS {
 
