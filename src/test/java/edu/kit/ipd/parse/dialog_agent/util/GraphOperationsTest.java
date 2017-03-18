@@ -17,7 +17,7 @@ public class GraphOperationsTest {
 
 	@Ignore // check if the new confidence is in the correct node
 	@Test 
-	public void testVerifyNode() {
+	public void testVerifyNode1() {
 		DialogAgent da = new DialogAgent(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));	
 		da.init();
 		GraphOperations.verifyNode(da.graph, (INode) da.graph.getNodes().toArray()[0]);
@@ -25,6 +25,17 @@ public class GraphOperationsTest {
 		INode iNode = (INode) da.graph.getNodes().toArray()[0];
 		correctDouble = Double.parseDouble(iNode.getAttributeValue("asrConfidence").toString()); 
 		assertEquals(correctDouble, 1.0, 0.00001);
+	}
+	
+	@Ignore // check if verifiedByDialogAgent is true
+	@Test 
+	public void testVerifyNode2() {
+		DialogAgent da = new DialogAgent(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));	
+		da.init();
+		GraphOperations.verifyNode(da.graph, (INode) da.graph.getNodes().toArray()[0]);
+		INode iNode = (INode) da.graph.getNodes().toArray()[0];
+		boolean verifiedByDialogAgent = Boolean.parseBoolean(iNode.getAttributeValue("verifiedByDialogAgent").toString()); 
+		assertEquals(verifiedByDialogAgent, true);
 	}
 	
 	@Ignore // check if the alternative nodes are deleted
@@ -47,9 +58,9 @@ public class GraphOperationsTest {
 		assertEquals(graph.getNodes().size(), 10);
 	}
 	
-	@Ignore
+	@Ignore // checks if the node is correctly replaced
 	@Test 
-	public void testReplaceNode() {
+	public void testReplaceNode1() {
 		BuildGraph bg = new BuildGraph(Paths.get("/Users/Mario/Parse/AudioArchive/voiceRecord-Tue Dec 13 12:32:40 CET 2016.flac"), true);
 		BuildGraph bg1 = new BuildGraph(Paths.get("/Users/Mario/Dialogmanager/audio/answerFri Jan 27 15:40:28 CET 2017.flac"), true);
 		IGraph graph = null;
@@ -66,5 +77,27 @@ public class GraphOperationsTest {
 		
 		INode replacedNode = (INode) graph.getNodes().toArray()[9];
 		assertEquals(replacedNode.getAttributeValue("value"), "bank");
+	}
+	
+	@Ignore // checks if verifiedByDialogAgent is true
+	@Test 
+	public void testReplaceNode2() {
+		BuildGraph bg = new BuildGraph(Paths.get("/Users/Mario/Parse/AudioArchive/voiceRecord-Tue Dec 13 12:32:40 CET 2016.flac"), true);
+		BuildGraph bg1 = new BuildGraph(Paths.get("/Users/Mario/Dialogmanager/audio/answerFri Jan 27 15:40:28 CET 2017.flac"), true);
+		IGraph graph = null;
+		INode newNode = null;
+		INode oldNode = null;
+		try {
+			graph = bg1.getGraph();
+			oldNode = (INode) graph.getNodes().toArray()[2];
+			newNode = (INode) bg.getGraph().getNodes().toArray()[0];	
+			GraphOperations.replaceNode(graph, oldNode, newNode);		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		INode replacedNode = (INode) graph.getNodes().toArray()[9];
+		boolean verifiedByDialogAgent = Boolean.parseBoolean(replacedNode.getAttributeValue("verifiedByDialogAgent").toString());
+		assertEquals(verifiedByDialogAgent, true);
 	}
 }

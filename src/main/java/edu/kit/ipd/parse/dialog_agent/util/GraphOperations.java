@@ -18,13 +18,14 @@ public final class GraphOperations {
 	// replaces a node and removes his alternative nodes
 	public static void replaceNode(IGraph graph, INode oldNode, INode newNode) {
 		removeAlternativeNodes(graph, oldNode);
+		newNode.setAttributeValue("verifiedByDialogAgent", true);
 		graph.replaceNode(oldNode, newNode, false);
 	}
 
 	// verifies a node with low confidence and removes his alternative nodes
 	public static void verifyNode(IGraph graph, INode iNode) {
 		iNode.setAttributeValue("asrConfidence", 1.0);
-//		iNode.setAttributeValue("verifiedByDialogAgent", true);
+		iNode.setAttributeValue("verifiedByDialogAgent", true);
 		removeAlternativeNodes(graph, iNode);
 	}
 

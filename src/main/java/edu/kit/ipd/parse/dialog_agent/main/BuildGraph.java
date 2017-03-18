@@ -74,17 +74,18 @@ public class BuildGraph {
 				srLabeler.exec(ppd);
 			}
 			gb.exec(ppd);
+			IGraph graph = ppd.getGraph();
 			if (!agentMode) {
-				wsd.setGraph(ppd.getGraph());
+				wsd.setGraph(graph);
 				wsd.exec();
-				contextAnalyzer.setGraph(wsd.getGraph());
+				contextAnalyzer.setGraph(graph);
 				contextAnalyzer.exec();
-				conditionDetector.setGraph(wsd.getGraph());
+				conditionDetector.setGraph(graph);
 				conditionDetector.exec();
-				corefAnalyzer.setGraph(wsd.getGraph());
+				corefAnalyzer.setGraph(graph);
 				corefAnalyzer.exec();
 				// multiple calls of the agents!
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < 5; i++) {
 					wsd.exec();
 					contextAnalyzer.exec();
 					conditionDetector.exec();
@@ -95,24 +96,24 @@ public class BuildGraph {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		try {
-			System.out.println(ppd.getGraph().showGraph());
-			Object[] array = ppd.getGraph().getNodes().toArray();
-			for (int i = 0; i < array.length; i++) {
-				INode iNode = (INode) array[i];
-				System.out.println(iNode.toString()); // ########
-//				System.out.println(iNode.getAllAttributeNamesAndValuesAsPair().toString());
-//				System.out.println(iNode.getAttributeValue("asrConfidence"));
-			}
-			Object[] arrayArcs = ppd.getGraph().getArcs().toArray();
-			for (int i = 0; i < arrayArcs.length; i++) {
-				IArc iArc = (IArc) arrayArcs[i];
-				System.out.println(iArc.toString()); 
-			}
-		} catch (final MissingDataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+////			System.out.println(ppd.getGraph().showGraph());
+//			Object[] array = ppd.getGraph().getNodes().toArray();
+//			for (int i = 0; i < array.length; i++) {
+//				INode iNode = (INode) array[i];
+//				System.out.println(iNode.toString()); // ########
+////				System.out.println(iNode.getAllAttributeNamesAndValuesAsPair().toString());
+////				System.out.println(iNode.getAttributeValue("asrConfidence"));
+//			}
+//			Object[] arrayArcs = ppd.getGraph().getArcs().toArray();
+//			for (int i = 0; i < arrayArcs.length; i++) {
+//				IArc iArc = (IArc) arrayArcs[i];
+//				System.out.println(iArc.toString()); 
+//			}
+//		} catch (final MissingDataException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		IGraph graph = null;
 		try {
 			graph = ppd.getGraph();
