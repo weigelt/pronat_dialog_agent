@@ -17,121 +17,121 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 	@Override
 	protected boolean analyseGraph(IGraph graph) {
 		this.graph = graph;
-		System.out.println(graph.showGraph());
-		for (INode iNode : graph.getNodes()) {
-			System.out.println(iNode);
-			for (IArc iArc : iNode.getOutgoingArcs())
-				System.out.println(arcToString(iArc));
-		}
-		System.out.println("");
-		System.out.println("");
-		for (INode iNode : graph.getNodes())
-			System.out.println(iNode);
-
-		System.out.println("");
-		System.out.println("");
-		for (INode iNode : graph.getNodes()) {
-			if (iNode.getType().getName().equals("token"))
-				System.out.println(iNode.getAttributeValue("value"));
-		}
-		
-		
-		System.out.println("");
-		System.out.println("");
-		for (INode iNode : graph.getNodes()) {
-			if (iNode.getType().getName().equals("token")) {
-				System.out.print(iNode.getAttributeValue("value"));
-				System.out.print("  ");
-				System.out.print(iNode.getAttributeValue("commandType"));
-				System.out.println("");
-			}
-		}
-	
-		// get the first token node of the graph
-		INode firstNode = null;
-		for (INode iNode : graph.getNodes()) {
-			if (iNode.getType().getName().equals("token")) {
-				firstNode = iNode;
-				break;
-			}
-		} 
-		boolean search = true; 
-		while (search) {
-			search = false;
-			for (IArc iArc : firstNode.getIncomingArcs()) {
-				if (iArc.getType().getName().equals("relation")) {
-					firstNode = iArc.getSourceNode();
-					search = true;
-				}
-			}
-		}
-		System.out.println(" first Node  " + firstNode);
-		
-		// checks if there is an if-condition without a then-condition
-		boolean ifCondition = false;
-		boolean ifConditionFinished = false;
-		boolean hasNodes = true;
-		INode iteratorNode = firstNode;
-		while (hasNodes) {
-//			System.out.println(iteratorNode);
-//			System.out.println(iteratorNode.getAttributeValue("commandType"));
-			// this if condition prevents of trying the same issue over and over again
-			if (!iteratorNode.getAttributeValue("corefVerified").toString().equals("notProcessable")) { 
-				if (ifConditionFinished) {
-					if (iteratorNode.getAttributeValue("commandType").toString().equals("IF")) {
-						// new if before then -> then is missing
-						return true;
-					} else if (iteratorNode.getAttributeValue("commandType").toString().equals("THEN")) {
-						// everything is all right
-						ifConditionFinished = false;
-						textPart = new ArrayList<INode>();
-					}
-					else {
-						textPart.add(iteratorNode);					
-					}
-				}
-				if (iteratorNode.getAttributeValue("commandType").toString().equals("IF")) { 
-					// an if-condition started
-					ifCondition = true;
-					textPart.add(iteratorNode);
-				} 
-				if (ifCondition) {
-					if (iteratorNode.getAttributeValue("commandType").toString().equals("THEN")) { 
-						// if an "if"-part a "then"-part follows everything is all right
-						ifCondition = false;
-						ifConditionFinished = false;
-						textPart = new ArrayList<INode>();
-					} 
-					else if (!iteratorNode.getAttributeValue("commandType").toString().equals("IF")) { 
-						// if not we have to check if one comes before the next if-part
-						ifConditionFinished = true;
-						ifCondition = false;
-						if (!textPart.contains(iteratorNode))
-							textPart.add(iteratorNode);		
-					} 
-					else {
-						if (!textPart.contains(iteratorNode))
-							textPart.add(iteratorNode);						
-					}
-				}
-	//			System.out.println("icifConditionFinishedf " + ifConditionFinished);
-	//			System.out.println("ifCondition " + ifCondition);
-	//			System.out.println("textPart size " + textPart.size());
-				// takes the next token node in the graph, till the last one is reached
-				hasNodes = false;
-			}
-			for (IArc iArc : iteratorNode.getOutgoingArcs()) {
-				if (iArc.getType().getName().equals("relation")) {
-					iteratorNode = iArc.getTargetNode();
-					hasNodes = true;
-				}
-			}
-		}
-//		System.out.println("icifConditionFinishedf " + ifConditionFinished);
-//		System.out.println("ifCondition " + ifCondition);
-		if (ifConditionFinished || ifCondition) { // graph ends
-			return true;
-		}
+//		System.out.println(graph.showGraph());
+//		for (INode iNode : graph.getNodes()) {
+//			System.out.println(iNode);
+//			for (IArc iArc : iNode.getOutgoingArcs())
+//				System.out.println(arcToString(iArc));
+//		}
+//		System.out.println("");
+//		System.out.println("");
+//		for (INode iNode : graph.getNodes())
+//			System.out.println(iNode);
+//
+//		System.out.println("");
+//		System.out.println("");
+//		for (INode iNode : graph.getNodes()) {
+//			if (iNode.getType().getName().equals("token"))
+//				System.out.println(iNode.getAttributeValue("value"));
+//		}
+//		
+//		
+//		System.out.println("");
+//		System.out.println("");
+//		for (INode iNode : graph.getNodes()) {
+//			if (iNode.getType().getName().equals("token")) {
+//				System.out.print(iNode.getAttributeValue("value"));
+//				System.out.print("  ");
+//				System.out.print(iNode.getAttributeValue("commandType"));
+//				System.out.println("");
+//			}
+//		}
+//	
+//		// get the first token node of the graph
+//		INode firstNode = null;
+//		for (INode iNode : graph.getNodes()) {
+//			if (iNode.getType().getName().equals("token")) {
+//				firstNode = iNode;
+//				break;
+//			}
+//		} 
+//		boolean search = true; 
+//		while (search) {
+//			search = false;
+//			for (IArc iArc : firstNode.getIncomingArcs()) {
+//				if (iArc.getType().getName().equals("relation")) {
+//					firstNode = iArc.getSourceNode();
+//					search = true;
+//				}
+//			}
+//		}
+//		System.out.println(" first Node  " + firstNode);
+//		
+//		// checks if there is an if-condition without a then-condition
+//		boolean ifCondition = false;
+//		boolean ifConditionFinished = false;
+//		boolean hasNodes = true;
+//		INode iteratorNode = firstNode;
+//		while (hasNodes) {
+////			System.out.println(iteratorNode);
+////			System.out.println(iteratorNode.getAttributeValue("commandType"));
+//			// this if condition prevents of trying the same issue over and over again
+//			if (!iteratorNode.getAttributeValue("corefVerified").toString().equals("notProcessable")) { 
+//				if (ifConditionFinished) {
+//					if (iteratorNode.getAttributeValue("commandType").toString().equals("IF")) {
+//						// new if before then -> then is missing
+//						return true;
+//					} else if (iteratorNode.getAttributeValue("commandType").toString().equals("THEN")) {
+//						// everything is all right
+//						ifConditionFinished = false;
+//						textPart = new ArrayList<INode>();
+//					}
+//					else {
+//						textPart.add(iteratorNode);					
+//					}
+//				}
+//				if (iteratorNode.getAttributeValue("commandType").toString().equals("IF")) { 
+//					// an if-condition started
+//					ifCondition = true;
+//					textPart.add(iteratorNode);
+//				} 
+//				if (ifCondition) {
+//					if (iteratorNode.getAttributeValue("commandType").toString().equals("THEN")) { 
+//						// if an "if"-part a "then"-part follows everything is all right
+//						ifCondition = false;
+//						ifConditionFinished = false;
+//						textPart = new ArrayList<INode>();
+//					} 
+//					else if (!iteratorNode.getAttributeValue("commandType").toString().equals("IF")) { 
+//						// if not we have to check if one comes before the next if-part
+//						ifConditionFinished = true;
+//						ifCondition = false;
+//						if (!textPart.contains(iteratorNode))
+//							textPart.add(iteratorNode);		
+//					} 
+//					else {
+//						if (!textPart.contains(iteratorNode))
+//							textPart.add(iteratorNode);						
+//					}
+//				}
+//	//			System.out.println("icifConditionFinishedf " + ifConditionFinished);
+//	//			System.out.println("ifCondition " + ifCondition);
+//	//			System.out.println("textPart size " + textPart.size());
+//				// takes the next token node in the graph, till the last one is reached
+//				hasNodes = false;
+//			}
+//			for (IArc iArc : iteratorNode.getOutgoingArcs()) {
+//				if (iArc.getType().getName().equals("relation")) {
+//					iteratorNode = iArc.getTargetNode();
+//					hasNodes = true;
+//				}
+//			}
+//		}
+////		System.out.println("icifConditionFinishedf " + ifConditionFinished);
+////		System.out.println("ifCondition " + ifCondition);
+//		if (ifConditionFinished || ifCondition) { // graph ends
+//			return true;
+//		}
 		return false;
 	}
 
@@ -141,24 +141,23 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 		for (int i = 0; i < 4; i++) { // ask the user at most three times (the fourth loop is just for reaching the if part again)
 			if (realMatch.isEmpty()) {
 				String question = "";
-				if (i == 0) {
+				if (i == 0) { // first question
 					question = question + "Please just say the then condition of the following part again:  ";
 					for (INode iNode : textPart) {
 						question = question + iNode.getAttributeValue("value") + "  ";
 					}
-				} else if (i == 1) {
+				} else if (i == 1) { // second question
 					question = question + "I did not get it. Focus, I will repeat your words and you should just repeat this part of your words, "
 							+ "which contains the then condition. Your words were:  ";
 					for (INode iNode : textPart) {
 						question = question + iNode.getAttributeValue("value") + "  ";
 					}
-				} else if (i == 2) {
+				} else if (i == 2) { // third question
 					question = question + "Ok, last attempt. Please repeat the then part in your statement:  ";
 					for (INode iNode : textPart) {
 						question = question + iNode.getAttributeValue("value") + "  ";
 					}
-				} else {
-					// this part is reqched if the third answer is not understood
+				} else { // this part is reqched if the third answer is not understood
 					for (INode iNode : textPart) {
 						iNode.setAttributeValue("conditionVerified", "notProcessable");
 					}

@@ -43,7 +43,7 @@ public class MainClass {
 
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s6p02.flac");   // coref third best szenario but no coref!!! 
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s7p07.flac");   // coref second best szenario but no coref!!! 
-//		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s7p09.flac");   // coref best szenario but no coref!!! 
+		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s7p09.flac");   // coref best szenario but no coref!!! 
 		
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s6p09.flac");   // coref szenario
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s6p03.flac");   //  
@@ -59,7 +59,7 @@ public class MainClass {
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/scene4_11.flac");   // bad asr, but maybe
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/scene4_14.flac");   // no condition
 		
-		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/scene4_15.flac");   // THAAAAAAAAAAAAAAAAAATS IT!
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/scene4_15.flac");   // THAAAAAAAAAAAAAAAAAATS IT!
 		
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/scene4_16.flac");   // interesting! but then still there!
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/scene5_1.flac");   // Else not detected, also in 5, 6, 9
