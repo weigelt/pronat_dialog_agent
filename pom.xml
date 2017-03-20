@@ -40,17 +40,14 @@
 			<groupId>edu.kit.ipd.parse</groupId>
 			<artifactId>luna</artifactId>
 			<classifier>javadoc</classifier>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.ipd.parse</groupId>
 			<artifactId>luna</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.ipd.parse</groupId>
 			<artifactId>ShallowNLP</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.ipd.parse</groupId>

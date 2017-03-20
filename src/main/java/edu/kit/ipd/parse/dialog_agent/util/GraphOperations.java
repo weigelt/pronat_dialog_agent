@@ -18,21 +18,20 @@ public final class GraphOperations {
 	// replaces a node and removes his alternative nodes
 	public static void replaceNode(IGraph graph, INode oldNode, INode newNode) {
 		removeAlternativeNodes(graph, oldNode);
-		newNode.setAttributeValue("verifiedByDialogAgent", true);
+		newNode.setAttributeValue("asrVerified", true);
 		graph.replaceNode(oldNode, newNode, false);
 	}
 
 	// verifies a node with low confidence and removes his alternative nodes
-	public static void verifyNode(IGraph graph, INode iNode) {
+	public static void asrVerifyNode(IGraph graph, INode iNode) {
 		iNode.setAttributeValue("asrConfidence", 1.0);
-		iNode.setAttributeValue("verifiedByDialogAgent", true);
 		removeAlternativeNodes(graph, iNode);
 	}
 
 	// remove the alternative nodes of a node
 	public static void removeAlternativeNodes(IGraph graph, INode iNode) {
 		// select alternative nodes
-		Set<? extends IArc> outgoingArcs = iNode.getOutgoingArcs();
+		Set<? extends IArc> outgoingArcs = (Set<? extends IArc>) iNode.getOutgoingArcs();
 		List<INode> alternativeNodes = new ArrayList<INode>();
 		System.out.println(iNode.toString());
 		for (IArc outgoingArc : outgoingArcs) {
@@ -62,5 +61,72 @@ public final class GraphOperations {
 			}
 		}
 		return counter;
+	}
+	
+	// get previous verb node
+	public static INode getPreviousVerbNode(INode iNode) {
+		// take a previous node, if iNode is a already a verb
+		if (iNode.getAttributeValue("chunkName").equals("VP") && !iNode.getIncomingArcs().isEmpty()) {
+			for (IArc iArc : iNode.getIncomingArcs()) {
+				if (iArc.getType().getName().equals("relation")) {
+					iNode = iArc.getSourceNode();
+				}
+			}
+		}
+		
+		// iterate till the textPart begins with a verb phrase
+		while (!iNode.getAttributeValue("chunkName").equals("VP")) {
+			if (!iNode.getIncomingArcs().isEmpty()) {
+				for (IArc iArc : iNode.getIncomingArcs()) {
+					if (iArc.getType().getName().equals("relation")) {
+						iNode = iArc.getSourceNode();
+					}
+				}
+			}
+			else {
+				break;
+			}
+		}
+
+		return iNode;
+	}
+	
+	// get last node of the following noun phrase
+	public static INode getSubsequentNounNode(INode iNode) {
+		// if iNode is already a noun phrase
+		while (iNode.getAttributeValue("chunkName").equals("NP") && !iNode.getIncomingArcs().isEmpty()) {
+			for (IArc iArc : iNode.getOutgoingArcs()) {
+				if (iArc.getType().getName().equals("relation")) {
+					iNode = iArc.getTargetNode();
+				}
+			}
+		}
+		
+		// gather all nodes between iNode and the next noun phrase
+		while (!iNode.getAttributeValue("chunkName").equals("NP") && !iNode.getIncomingArcs().isEmpty()) {
+			for (IArc iArc : iNode.getOutgoingArcs()) {
+				if (iArc.getType().getName().equals("relation")) {
+					iNode = iArc.getTargetNode();
+				}
+			}
+		}
+		
+		// if iNode is already a noun phrase
+		boolean search = true;
+		while (iNode.getAttributeValue("chunkName").equals("NP") && !iNode.getIncomingArcs().isEmpty() && search) {
+			for (IArc iArc : iNode.getOutgoingArcs()) {
+				if (iArc.getType().getName().equals("relation")) {
+					if (!iNode.getAttributeValue("chunkName").equals("NP")) {
+						// do not the nodes it anymore, because this node is behind the next noun phrase
+						search = false;
+						break;
+					} else {
+						iNode = iArc.getTargetNode();
+					}
+				}
+			}
+		}
+			
+		return iNode;
 	}
 }

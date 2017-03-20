@@ -16,6 +16,7 @@ import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.graph.Pair;
 import edu.kit.ipd.parse.luna.pipeline.PipelineStageException;
+import edu.kit.ipd.parse.luna.tools.StringToHypothesis;
 import edu.kit.ipd.parse.multiasr.MultiASRPipelineStage;
 import edu.kit.ipd.parse.ner.NERTagger;
 import edu.kit.ipd.parse.shallownlp.ShallowNLP;
@@ -26,6 +27,7 @@ public class BuildGraph {
 	
 	Path inputPath; // path to the input audio.flac file	
 	private boolean agentMode;
+	private boolean audioFile;
 	private MultiASRPipelineStage masr;
 	private ShallowNLP snlp;
 	private NERTagger nerTagger;
@@ -37,12 +39,30 @@ public class BuildGraph {
 	private CorefAnalyzer corefAnalyzer;
 	PrePipelineData ppd;
 	
-	// constructor
+	// constructor for audio files
 	public BuildGraph(Path inputPath, boolean agentMode) { 
 		this.inputPath = inputPath;
 		this.agentMode = agentMode;
-		masr = new MultiASRPipelineStage();
-		masr.init();
+		this.audioFile = true;
+		init();
+		ppd = new PrePipelineData();
+		ppd.setInputFilePath(inputPath);
+	}
+	
+	// constructor for text files
+	public BuildGraph(String text) {
+		this.agentMode = false;
+		this.audioFile = false;
+		init();
+		ppd = new PrePipelineData();
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(text));		
+	}
+	
+	public void init() {
+		if (audioFile) {
+			masr = new MultiASRPipelineStage();
+			masr.init();
+		}
 		snlp = new ShallowNLP();
 		snlp.init();
 		nerTagger = new NERTagger();
@@ -64,10 +84,10 @@ public class BuildGraph {
 	}
 	
 	public IGraph getGraph() throws MissingDataException {
-		ppd = new PrePipelineData();
-		ppd.setInputFilePath(inputPath);
 		try {
-			masr.exec(ppd);
+			if (audioFile) {
+				masr.exec(ppd);
+			}
 			snlp.exec(ppd);
 			if (!agentMode) {
 				nerTagger.exec(ppd);

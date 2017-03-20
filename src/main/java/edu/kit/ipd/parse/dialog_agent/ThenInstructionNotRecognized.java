@@ -17,6 +17,13 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 	@Override
 	protected boolean analyseGraph(IGraph graph) {
 		this.graph = graph;
+		
+//		for (INode iNode : graph.getNodes()) {
+//			if (iNode.getType().getName().equals("token")) {
+//				iNode.getType().addAttributeToType(typeAsString, attributeName);
+//			}
+//		}
+		
 //		System.out.println(graph.showGraph());
 //		for (INode iNode : graph.getNodes()) {
 //			System.out.println(iNode);

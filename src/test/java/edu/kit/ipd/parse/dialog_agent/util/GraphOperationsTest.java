@@ -20,7 +20,7 @@ public class GraphOperationsTest {
 	public void testVerifyNode1() {
 		DialogAgent da = new DialogAgent(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));	
 		da.init();
-		GraphOperations.verifyNode(da.graph, (INode) da.graph.getNodes().toArray()[0]);
+		GraphOperations.asrVerifyNode(da.graph, (INode) da.graph.getNodes().toArray()[0]);
 		double correctDouble = -1;
 		INode iNode = (INode) da.graph.getNodes().toArray()[0];
 		correctDouble = Double.parseDouble(iNode.getAttributeValue("asrConfidence").toString()); 
@@ -32,7 +32,7 @@ public class GraphOperationsTest {
 	public void testVerifyNode2() {
 		DialogAgent da = new DialogAgent(Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:08:24 CET 2017.flac"));	
 		da.init();
-		GraphOperations.verifyNode(da.graph, (INode) da.graph.getNodes().toArray()[0]);
+		GraphOperations.asrVerifyNode(da.graph, (INode) da.graph.getNodes().toArray()[0]);
 		INode iNode = (INode) da.graph.getNodes().toArray()[0];
 		boolean verifiedByDialogAgent = Boolean.parseBoolean(iNode.getAttributeValue("verifiedByDialogAgent").toString()); 
 		assertEquals(verifiedByDialogAgent, true);

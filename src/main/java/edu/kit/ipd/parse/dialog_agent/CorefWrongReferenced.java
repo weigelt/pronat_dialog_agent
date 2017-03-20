@@ -1,7 +1,6 @@
 package edu.kit.ipd.parse.dialog_agent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,112 +26,112 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		this.graph = graph;
 		boolean result = false;
 		
-		System.out.println(graph.showGraph());
-		for (INode iNode : graph.getNodes()) {
-			System.out.println(iNode);
-		}
-//		
-		System.out.println("");
-		System.out.println("");
-		for (IArc iArc : graph.getArcs()) {
-			if (iArc.getType().getName().equals("contextRelation")) {
-				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
-					INode anaphoraSourceNode = iArc.getSourceNode();
-					System.out.println(detectContextEntityElements(anaphoraSourceNode));
-//					for (IArc sourceOutgoingArc : anaphoraSourceNode.getOutgoingArcs()) {
-//						if (sourceOutgoingArc.getType().getName().equals("reference"))
-//							System.out.println("anaphora source token " + sourceOutgoingArc.getTargetNode());
-//					}
-					System.out.println(" anaphora source node " + anaphoraSourceNode);
-					System.out.println("  " + arcToString(iArc));
-					INode anaphoraTargetNode = iArc.getTargetNode();
-					System.out.println(" anaphora target node " + anaphoraTargetNode);
-					System.out.println(detectContextEntityElements(anaphoraTargetNode));
-//					for (IArc targetOutgoingArc : anaphoraTargetNode.getOutgoingArcs()) {
-////						System.out.println(arcToString(targetOutgoingArc));
-//						if (targetOutgoingArc.getType().getName().equals("reference"))
-//							System.out.println("anaphora target token " + targetOutgoingArc.getTargetNode());
-////							for (IArc targetOutgoingArc2 : targetOutgoingArc.getTargetNode().getOutgoingArcs()) {
-//////								System.out.println(arcToString(targetOutgoingArc2));
-////								if (targetOutgoingArc2.getType().getName().equals("reference"))
-////									System.out.println("anaphora target token " + targetOutgoingArc2.getTargetNode());
-////							}
-//					}
-					System.out.println("");
-				}
-			}
-		}
-		
-		
-		
-		// get all contextEntities with outgoing anaphoraReferent arcs
-		Set<INode> contextEntities = new HashSet<INode>();
-		for (INode iNode : graph.getNodes()) { 
-			if (iNode.getType().getName().equals("contextEntity")) { // get just the contextEntity nodes
-				for (IArc iArc : iNode.getOutgoingArcs()) {
-					if (iArc.getType().getName().equals("contextRelation")) { 
-						if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { // with outgoing anaphoraReferent arcs
-							contextEntities.add(iNode);
-						}
-					}
-				}
-			}
-		}
-		
-		// fills the list questionableContextEntities with contextEntities that are questionable
-		for (INode iNode : contextEntities) {
-			List<INode> confidenceCorrectList = new ArrayList<INode>();
-			List<INode> confidenceHighList = new ArrayList<INode>();
-			List<INode> confidenceLowList = new ArrayList<INode>();
-			for (IArc iArc : iNode.getOutgoingArcs()) {
-				if (iArc.getType().getName().equals("contextRelation")) { 
-					if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
-						double confidence = Double.parseDouble(iArc.getAttributeValue("confidence").toString());
-						if (confidence == CONFIDENCE_CORRECT_THRESHOLD) {
-							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
-								if (iArcReference.getType().getName().equals("reference")) {
-									confidenceCorrectList.add(iArcReference.getTargetNode());
-								}
-							}
-						}
-						if (confidence < CONFIDENCE_CORRECT_THRESHOLD && confidence >= CONFIDENCE_HIGH_THRESHOLD) {
-							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
-								if (iArcReference.getType().getName().equals("reference")) {
-									confidenceHighList.add(iArcReference.getTargetNode());	
-								}
-							}
-						}
-						if (confidence < CONFIDENCE_HIGH_THRESHOLD) {
-							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
-								if (iArcReference.getType().getName().equals("reference")) {
-									confidenceLowList.add(iArcReference.getTargetNode());
-								}
-							}
-						}
-					}
-				}
-			}
-			
-			if (confidenceCorrectList.size() > 1) {
-				questionableContextEntities.add(iNode);
-				result = true;
-			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() > 1) {
-				questionableContextEntities.add(iNode);
-				result = true;
-			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() == 0 && confidenceLowList.size() > 1) {
-				questionableContextEntities.add(iNode);
-				result = true;
-			}
-			
+//		System.out.println(graph.showGraph());
+//		for (INode iNode : graph.getNodes()) {
 //			System.out.println(iNode);
-//			System.out.println("size " + confidenceCorrectList.size());
-//			System.out.println("size " + confidenceHighList.size());
-//			System.out.println("size " + confidenceLowList.size());
-		}
-		
-//		for (int i = 0; i < questionableContextEntities.size(); i++) {
-//			System.out.println(questionableContextEntities.get(i));	
 //		}
+////		
+//		System.out.println("");
+//		System.out.println("");
+//		for (IArc iArc : graph.getArcs()) {
+//			if (iArc.getType().getName().equals("contextRelation")) {
+//				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
+//					INode anaphoraSourceNode = iArc.getSourceNode();
+//					System.out.println(detectContextEntityElements(anaphoraSourceNode));
+////					for (IArc sourceOutgoingArc : anaphoraSourceNode.getOutgoingArcs()) {
+////						if (sourceOutgoingArc.getType().getName().equals("reference"))
+////							System.out.println("anaphora source token " + sourceOutgoingArc.getTargetNode());
+////					}
+//					System.out.println(" anaphora source node " + anaphoraSourceNode);
+//					System.out.println("  " + arcToString(iArc));
+//					INode anaphoraTargetNode = iArc.getTargetNode();
+//					System.out.println(" anaphora target node " + anaphoraTargetNode);
+//					System.out.println(detectContextEntityElements(anaphoraTargetNode));
+////					for (IArc targetOutgoingArc : anaphoraTargetNode.getOutgoingArcs()) {
+//////						System.out.println(arcToString(targetOutgoingArc));
+////						if (targetOutgoingArc.getType().getName().equals("reference"))
+////							System.out.println("anaphora target token " + targetOutgoingArc.getTargetNode());
+//////							for (IArc targetOutgoingArc2 : targetOutgoingArc.getTargetNode().getOutgoingArcs()) {
+////////								System.out.println(arcToString(targetOutgoingArc2));
+//////								if (targetOutgoingArc2.getType().getName().equals("reference"))
+//////									System.out.println("anaphora target token " + targetOutgoingArc2.getTargetNode());
+//////							}
+////					}
+//					System.out.println("");
+//				}
+//			}
+//		}
+//		
+//		
+//		
+//		// get all contextEntities with outgoing anaphoraReferent arcs
+//		Set<INode> contextEntities = new HashSet<INode>();
+//		for (INode iNode : graph.getNodes()) { 
+//			if (iNode.getType().getName().equals("contextEntity")) { // get just the contextEntity nodes
+//				for (IArc iArc : iNode.getOutgoingArcs()) {
+//					if (iArc.getType().getName().equals("contextRelation")) { 
+//						if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { // with outgoing anaphoraReferent arcs
+//							contextEntities.add(iNode);
+//						}
+//					}
+//				}
+//			}
+//		}
+//		
+//		// fills the list questionableContextEntities with contextEntities that are questionable
+//		for (INode iNode : contextEntities) {
+//			List<INode> confidenceCorrectList = new ArrayList<INode>();
+//			List<INode> confidenceHighList = new ArrayList<INode>();
+//			List<INode> confidenceLowList = new ArrayList<INode>();
+//			for (IArc iArc : iNode.getOutgoingArcs()) {
+//				if (iArc.getType().getName().equals("contextRelation")) { 
+//					if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
+//						double confidence = Double.parseDouble(iArc.getAttributeValue("confidence").toString());
+//						if (confidence == CONFIDENCE_CORRECT_THRESHOLD) {
+//							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
+//								if (iArcReference.getType().getName().equals("reference")) {
+//									confidenceCorrectList.add(iArcReference.getTargetNode());
+//								}
+//							}
+//						}
+//						if (confidence < CONFIDENCE_CORRECT_THRESHOLD && confidence >= CONFIDENCE_HIGH_THRESHOLD) {
+//							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
+//								if (iArcReference.getType().getName().equals("reference")) {
+//									confidenceHighList.add(iArcReference.getTargetNode());	
+//								}
+//							}
+//						}
+//						if (confidence < CONFIDENCE_HIGH_THRESHOLD) {
+//							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
+//								if (iArcReference.getType().getName().equals("reference")) {
+//									confidenceLowList.add(iArcReference.getTargetNode());
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//			
+//			if (confidenceCorrectList.size() > 1) {
+//				questionableContextEntities.add(iNode);
+//				result = true;
+//			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() > 1) {
+//				questionableContextEntities.add(iNode);
+//				result = true;
+//			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() == 0 && confidenceLowList.size() > 1) {
+//				questionableContextEntities.add(iNode);
+//				result = true;
+//			}
+//			
+////			System.out.println(iNode);
+////			System.out.println("size " + confidenceCorrectList.size());
+////			System.out.println("size " + confidenceHighList.size());
+////			System.out.println("size " + confidenceLowList.size());
+//		}
+//		
+////		for (int i = 0; i < questionableContextEntities.size(); i++) {
+////			System.out.println(questionableContextEntities.get(i));	
+////		}
 		return result;
 	}
 	
