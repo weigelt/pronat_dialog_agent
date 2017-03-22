@@ -5,8 +5,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.kit.ipd.parse.dialog_agent.tools.ConfigManager;
 import edu.kit.ipd.parse.dialog_agent.util.GainUserAnswer;
 import edu.kit.ipd.parse.dialog_agent.util.Synthesizer;
 import edu.kit.ipd.parse.luna.graph.IArc;
@@ -14,15 +19,22 @@ import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.graph.INode;
 
 public class CorefWrongReferenced extends AbstractDefectCategory {
+
+	private static final Logger logger = LoggerFactory.getLogger(CorefWrongReferenced.class);
 	
-	IGraph graph;
-	double CONFIDENCE_CORRECT_THRESHOLD = 1.0;
-	double CONFIDENCE_HIGH_THRESHOLD = 0.5;
+	private IGraph graph;
+	private Properties props;
+	private double anaphoraReferentCorrectThreshold;
+	private double anaphoraReferentMostProbablyCorrectThreshold;
 	
 	List<INode> questionableContextEntities = new ArrayList<INode>();
 	
 	@Override
 	protected boolean analyseGraph(IGraph graph) {
+		props = ConfigManager.getConfiguration(getClass(), "DialogAgent");
+		anaphoraReferentCorrectThreshold = Double.parseDouble(props.getProperty("ANAPHORA_REFERENT_CORRECT_THRESHOLD"));
+		anaphoraReferentMostProbablyCorrectThreshold = Double.parseDouble(props.getProperty("ANAPHORA_REFERENT_MOST_PROBABLY_CORRECT_THRESHOLD"));
+		
 		this.graph = graph;
 		boolean result = false;
 		
@@ -30,7 +42,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 //		for (INode iNode : graph.getNodes()) {
 //			System.out.println(iNode);
 //		}
-////		
+//		
 //		System.out.println("");
 //		System.out.println("");
 //		for (IArc iArc : graph.getArcs()) {
@@ -61,82 +73,98 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 //				}
 //			}
 //		}
-//		
-//		
-//		
-//		// get all contextEntities with outgoing anaphoraReferent arcs
-//		Set<INode> contextEntities = new HashSet<INode>();
-//		for (INode iNode : graph.getNodes()) { 
-//			if (iNode.getType().getName().equals("contextEntity")) { // get just the contextEntity nodes
-//				for (IArc iArc : iNode.getOutgoingArcs()) {
-//					if (iArc.getType().getName().equals("contextRelation")) { 
-//						if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { // with outgoing anaphoraReferent arcs
-//							contextEntities.add(iNode);
-//						}
-//					}
-//				}
-//			}
+		
+		// add the attribute confidenceVerified (with default value false) to the contextRelation arcs, which contain the anaphoraReferent arcs 
+		boolean attributeSet = false;
+		for (IArc iArc : graph.getArcs()) {
+			if (iArc.getType().getName().equals("contextRelation")) { 
+				if (!attributeSet) {
+					iArc.getType().addAttributeToType("boolean", "confidenceVerified");		
+					iArc.setAttributeValue("confidenceVerified", false);
+					attributeSet = true;
+				} else {
+					iArc.setAttributeValue("confidenceVerified", false);					
+				}
+			}
+		}
+		
+		// get all contextEntities with outgoing anaphoraReferent arcs, except the already verified ones
+		Set<INode> contextEntities = new HashSet<INode>();
+		for (INode iNode : graph.getNodes()) { 
+			if (iNode.getType().getName().equals("contextEntity")) { // get just the contextEntity nodes
+				for (IArc iArc : iNode.getOutgoingArcs()) {
+					if (iArc.getType().getName().equals("contextRelation")) { 
+						if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { // with outgoing anaphoraReferent arcs
+							if (!(boolean) iArc.getAttributeValue("confidenceVerified")) {
+								contextEntities.add(iNode);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// fills the list questionableContextEntities with contextEntities that are questionable
+		for (INode iNode : contextEntities) {
+			List<INode> confidenceCorrectList = new ArrayList<INode>();
+			List<INode> confidenceHighList = new ArrayList<INode>();
+			List<INode> confidenceLowList = new ArrayList<INode>();
+			for (IArc iArc : iNode.getOutgoingArcs()) {
+				if (iArc.getType().getName().equals("contextRelation")) { 
+					if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
+						double confidence = Double.parseDouble(iArc.getAttributeValue("confidence").toString());
+						if (confidence == anaphoraReferentCorrectThreshold) {
+							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
+								if (iArcReference.getType().getName().equals("reference")) {
+									confidenceCorrectList.add(iArcReference.getTargetNode());
+								}
+							}
+						}
+						if (confidence < anaphoraReferentCorrectThreshold && confidence >= anaphoraReferentMostProbablyCorrectThreshold) {
+							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
+								if (iArcReference.getType().getName().equals("reference")) {
+									confidenceHighList.add(iArcReference.getTargetNode());	
+								}
+							}
+						}
+						if (confidence < anaphoraReferentMostProbablyCorrectThreshold) {
+							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
+								if (iArcReference.getType().getName().equals("reference")) {
+									confidenceLowList.add(iArcReference.getTargetNode());
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			if (confidenceCorrectList.size() > 1) {
+				questionableContextEntities.add(iNode);
+				result = true;
+			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() > 1) {
+				questionableContextEntities.add(iNode);
+				result = true;
+			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() == 0 && confidenceLowList.size() > 1) {
+				questionableContextEntities.add(iNode);
+				result = true;
+			}
+			
+//			System.out.println(iNode);
+//			System.out.println("size " + confidenceCorrectList.size());
+//			System.out.println("size " + confidenceHighList.size());
+//			System.out.println("size " + confidenceLowList.size());
+		}
+		
+//		for (int i = 0; i < questionableContextEntities.size(); i++) {
+//			System.out.println(questionableContextEntities.get(i));	
 //		}
-//		
-//		// fills the list questionableContextEntities with contextEntities that are questionable
-//		for (INode iNode : contextEntities) {
-//			List<INode> confidenceCorrectList = new ArrayList<INode>();
-//			List<INode> confidenceHighList = new ArrayList<INode>();
-//			List<INode> confidenceLowList = new ArrayList<INode>();
-//			for (IArc iArc : iNode.getOutgoingArcs()) {
-//				if (iArc.getType().getName().equals("contextRelation")) { 
-//					if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
-//						double confidence = Double.parseDouble(iArc.getAttributeValue("confidence").toString());
-//						if (confidence == CONFIDENCE_CORRECT_THRESHOLD) {
-//							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
-//								if (iArcReference.getType().getName().equals("reference")) {
-//									confidenceCorrectList.add(iArcReference.getTargetNode());
-//								}
-//							}
-//						}
-//						if (confidence < CONFIDENCE_CORRECT_THRESHOLD && confidence >= CONFIDENCE_HIGH_THRESHOLD) {
-//							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
-//								if (iArcReference.getType().getName().equals("reference")) {
-//									confidenceHighList.add(iArcReference.getTargetNode());	
-//								}
-//							}
-//						}
-//						if (confidence < CONFIDENCE_HIGH_THRESHOLD) {
-//							for (IArc iArcReference : iArc.getTargetNode().getOutgoingArcs()) {
-//								if (iArcReference.getType().getName().equals("reference")) {
-//									confidenceLowList.add(iArcReference.getTargetNode());
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//			
-//			if (confidenceCorrectList.size() > 1) {
-//				questionableContextEntities.add(iNode);
-//				result = true;
-//			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() > 1) {
-//				questionableContextEntities.add(iNode);
-//				result = true;
-//			} else if (confidenceCorrectList.size() == 0 && confidenceHighList.size() == 0 && confidenceLowList.size() > 1) {
-//				questionableContextEntities.add(iNode);
-//				result = true;
-//			}
-//			
-////			System.out.println(iNode);
-////			System.out.println("size " + confidenceCorrectList.size());
-////			System.out.println("size " + confidenceHighList.size());
-////			System.out.println("size " + confidenceLowList.size());
-//		}
-//		
-////		for (int i = 0; i < questionableContextEntities.size(); i++) {
-////			System.out.println(questionableContextEntities.get(i));	
-////		}
 		return result;
 	}
 	
 	@Override
 	protected void solveDefectCategory() {
+		logger.info("Start solving coreference resolution issues - ambiguous coreference found");
+		
 		INode contextEntityNode = questionableContextEntities.get(0);
 //		int countAnaphoraArcs = 0;
 //		for (IArc iArc : contextEntityNode.getOutgoingArcs()) {
@@ -181,38 +209,38 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 			occurence.put(iNode, 1);
 		}
 		
-		System.out.println("MAP");
+//		System.out.println("MAP");
 		boolean sourceContextEntityMoreThanOnce = false;
 		for (INode iNode : allContextEntities.keySet()) {
-			System.out.println(iNode);
-			System.out.println(allContextEntities.get(iNode));
+//			System.out.println(iNode);
+//			System.out.println(allContextEntities.get(iNode));
 			if (getTokensAsString(contextEntityNode).equals(allContextEntities.get(iNode))) {
 				sourceContextEntityMoreThanOnce = true;
 			}
 		}
 		
-		System.out.println(sourceContextEntityMoreThanOnce);
+//		System.out.println(sourceContextEntityMoreThanOnce);
 		
-		// check if there are duplicates in the target contextEntities e. g. it two times
-		for (INode firstLoopNode : allContextEntities.keySet()) {
-			for (INode secondLoopNode : allContextEntities.keySet()) {
-				if (!firstLoopNode.equals(secondLoopNode)) {
-					if (allContextEntities.get(firstLoopNode).equals(allContextEntities.get(secondLoopNode))) {
-						occurence.replace(firstLoopNode, occurence.get(firstLoopNode) + 1);
-					}
-				}
-			}
-		}
-		boolean duplicateTargetContextEntities = false;
-		for (INode iNode : occurence.keySet()) {
-			if (occurence.get(iNode) > 1) {
-				duplicateTargetContextEntities = true;
-			}
-		}
-		System.out.println(duplicateTargetContextEntities);
-		if (duplicateTargetContextEntities) {
-			// set all considered nodes notProcessable - that is future work
-		}		
+//		// check if there are duplicates in the target contextEntities e. g. it two times
+//		for (INode firstLoopNode : allContextEntities.keySet()) {
+//			for (INode secondLoopNode : allContextEntities.keySet()) {
+//				if (!firstLoopNode.equals(secondLoopNode)) {
+//					if (allContextEntities.get(firstLoopNode).equals(allContextEntities.get(secondLoopNode))) {
+//						occurence.replace(firstLoopNode, occurence.get(firstLoopNode) + 1);
+//					}
+//				}
+//			}
+//		}
+//		boolean duplicateTargetContextEntities = false;
+//		for (INode iNode : occurence.keySet()) {
+//			if (occurence.get(iNode) > 1) {
+//				duplicateTargetContextEntities = true;
+//			}
+//		}
+//		System.out.println(duplicateTargetContextEntities);
+//		if (duplicateTargetContextEntities) {
+//			// set all considered nodes notProcessable - that is future work
+//		}		
 		
 		// phrase open question
 		String question = "In the following part, where does the ";
@@ -221,9 +249,21 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		}
 		List<INode> tokensEntityToAskForList = new ArrayList<INode>();
 		detectContextEntityTokens(tokensEntityToAskForList, contextEntityNode);
-		System.out.println("entities to ask for");
-		for (INode iNode : tokensEntityToAskForList) 
-			System.out.println(iNode);
+//		System.out.println("entities to ask for");
+		logger.debug("Source entity " + contextEntityNode);
+		for (INode iNode : tokensEntityToAskForList) {
+			logger.debug("Possible target entity " + iNode);
+			for (IArc iArc : iNode.getIncomingArcs()) {
+				if (iArc.getType().getName().equals("contextRelation")) { 
+					if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
+						if (iArc.getSourceNode().equals(contextEntityNode)) {
+							logger.debug("AnaphoraReferent confidence of this entity " + iArc.getAttributeValue("confidence"));
+						}
+					}
+				}
+			}
+//			System.out.println(iNode);
+		}
 		if (tokensEntityToAskForList.size() > 1) {
 			question = question + "phrase  ";
 			for (INode iNodeTokenToAskFor : tokensEntityToAskForList) {
@@ -242,14 +282,17 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		
 		Synthesizer.enunciateQuestion(question);
 		IGraph userAnswerGraph = GainUserAnswer.getUserAnswer();
-		System.out.println(userAnswerGraph.showGraph());
+//		System.out.println(userAnswerGraph.showGraph());
 		
 
-//		 include answer into graph___________________________________________________________________________
-		for (INode node : contextTokens)
-			System.out.println(node);
+////		 include answer into graph___________________________________________________________________________
+//		for (INode node : contextTokens)
+//			System.out.println(node);
 		
 		List<INode> matchedContextEntityTokens = checkMatch(targetEntities, userAnswerGraph);
+		if (!matchedContextEntityTokens.isEmpty()) {
+			logger.debug("Identified target context entity is " + matchedContextEntityTokens.get(0));
+		}
 		
 		// 
 		boolean isNotSolved = true;
@@ -274,8 +317,11 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 					
 					Synthesizer.enunciateQuestion(question);
 					userAnswerGraph = GainUserAnswer.getUserAnswer();
-					System.out.println(userAnswerGraph.showGraph());
+//					System.out.println(userAnswerGraph.showGraph());
 					matchedContextEntityTokens = checkMatch(targetEntities, userAnswerGraph);
+					if (!matchedContextEntityTokens.isEmpty()) {
+						logger.debug("Identified target context entity is " + matchedContextEntityTokens.get(0));
+					}
 					secondQuestionAsked = true;
 				} else {
 					// now drill down on every target contextEntity
@@ -289,7 +335,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 						
 						Synthesizer.enunciateQuestion(question);
 						userAnswerGraph = GainUserAnswer.getUserAnswer();
-						System.out.println(userAnswerGraph.showGraph());
+//						System.out.println(userAnswerGraph.showGraph());
 						
 						// determine if the answer is yes or no
 						if (userAnswerGraph.getNodes().size() == 0) {
@@ -300,6 +346,9 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 							for (INode node : userAnswerGraph.getNodes()) {
 								if (node.getAttributeValue("value").toString().equals("yes")) {
 									matchedContextEntityTokens.add(targetEntities.get(i));
+									if (!matchedContextEntityTokens.isEmpty()) {
+										logger.debug("Identified target context entity is " + matchedContextEntityTokens.get(0));
+									}
 									break;							
 								} else if (node.getAttributeValue("value").toString().equals("no")) {
 									// go on with the next target contextEntity
@@ -316,6 +365,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 						if (counter == allContextEntities.keySet().size()) {
 							// nothing fits set all considered anaphoraReferent arcs 0.0
 							setAnaphoraReferentArcsZero(contextEntityNode);
+							logger.debug("None of the above is a target context entity. All considered anaphoraReferent arc confidences are set 0.0.");
 							isNotSolved = false;
 						}					
 					}
@@ -323,36 +373,36 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 			} else {
 				// include the user answer into the graph
 				INode matchedContextEntity = matchedContextEntityTokens.get(0);
-				System.out.println(matchedContextEntity);
-				System.out.println("outgoing");
-				for (IArc iArc : matchedContextEntity.getOutgoingArcs()) {
-					System.out.println(iArc);
-				}				
-				System.out.println("ingoing");
-				for (IArc iArc : matchedContextEntity.getIncomingArcs()) {
-					System.out.println(iArc);
-				}				
+//				System.out.println(matchedContextEntity);
+//				System.out.println("outgoing");
+//				for (IArc iArc : matchedContextEntity.getOutgoingArcs()) {
+//					System.out.println(iArc);
+//				}				
+//				System.out.println("ingoing");
+//				for (IArc iArc : matchedContextEntity.getIncomingArcs()) {
+//					System.out.println(iArc);
+//				}				
 				updateAnaphoraReferent(contextEntityNode, matchedContextEntity);
 				isNotSolved = false;
 			}
 		}
 		
-		System.out.println("");
-		System.out.println("");
-		for (IArc iArc : graph.getArcs()) {
-			if (iArc.getType().getName().equals("contextRelation")) {
-				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
-					INode anaphoraSourceNode = iArc.getSourceNode();
-					System.out.println(detectContextEntityElements(anaphoraSourceNode));
+//		System.out.println("");
+//		System.out.println("");
+//		for (IArc iArc : graph.getArcs()) {
+//			if (iArc.getType().getName().equals("contextRelation")) {
+//				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
+//					INode anaphoraSourceNode = iArc.getSourceNode();
+//					System.out.println(detectContextEntityElements(anaphoraSourceNode));
 //					for (IArc sourceOutgoingArc : anaphoraSourceNode.getOutgoingArcs()) {
 //						if (sourceOutgoingArc.getType().getName().equals("reference"))
 //							System.out.println("anaphora source token " + sourceOutgoingArc.getTargetNode());
 //					}
-					System.out.println(" anaphora source node " + anaphoraSourceNode);
-					System.out.println("  " + arcToString(iArc));
-					INode anaphoraTargetNode = iArc.getTargetNode();
-					System.out.println(" anaphora target node " + anaphoraTargetNode);
-					System.out.println(detectContextEntityElements(anaphoraTargetNode));
+//					System.out.println(" anaphora source node " + anaphoraSourceNode);
+//					System.out.println("  " + arcToString(iArc));
+//					INode anaphoraTargetNode = iArc.getTargetNode();
+//					System.out.println(" anaphora target node " + anaphoraTargetNode);
+//					System.out.println(detectContextEntityElements(anaphoraTargetNode));
 //					for (IArc targetOutgoingArc : anaphoraTargetNode.getOutgoingArcs()) {
 ////						System.out.println(arcToString(targetOutgoingArc));
 //						if (targetOutgoingArc.getType().getName().equals("reference"))
@@ -363,10 +413,10 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 ////									System.out.println("anaphora target token " + targetOutgoingArc2.getTargetNode());
 ////							}
 //					}
-					System.out.println("");
-				}
-			}
-		}
+//					System.out.println("");
+//				}
+//			}
+//		}
 	}
 	
 	// returns the contextEntity if there is a match, otherwise an empty list
@@ -400,7 +450,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 					i = targetEntities.size();
 				}
 			}
-			System.out.println(i);
+//			System.out.println(i);
 			// if not all words match - this will be checked after all targetEntities are checked once 
 			if (i == (targetEntities.size() - 1) && matchedContextEntityTokens.isEmpty()) { // this just helps, if there is a noun (NN)
 				for (int u = 0; u < targetEntities.size(); u++) {
@@ -408,12 +458,12 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 					detectContextEntityTokens(tokens, targetEntities.get(u));
 					if (tokens.size() > 1) { 
 						for (INode token : tokens) {
-					    	System.out.println("token " + token);
+//					    	System.out.println("token " + token);
 						    if (token.getAttributeValue("pos").equals("NN")) {
 								for (INode iNode : answerGraph.getNodes()) {
-							    	System.out.println("answerGraph " + iNode);
+//							    	System.out.println("answerGraph " + iNode);
 									if (iNode.getAttributeValue("value").equals(token.getAttributeValue("value"))) {
-										System.out.println("match");
+//										System.out.println("match");
 										if (matchedContextEntityTokens.size() < 1) { // prevents of matching two contextEntities
 											matchedContextEntityTokens.add(targetEntities.get(u));											
 										}
@@ -426,7 +476,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 					} 
 				}
 			}
-			System.out.println("after " + i);
+//			System.out.println("after " + i);
 		}
 		return matchedContextEntityTokens;
 	}
@@ -525,10 +575,10 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
 					if (iArc.getTargetNode().equals(targetContextEntity)) {
 						iArc.setAttributeValue("confidence", "1.0");
-						iArc.setAttributeValue("verifiedByDialogAgent", true);
+						iArc.setAttributeValue("confidenceVerified", true);
 					} else {
 						iArc.setAttributeValue("confidence", "0.0");	
-						iArc.setAttributeValue("verifiedByDialogAgent", true);						
+						iArc.setAttributeValue("confidenceVerified", true);					
 					}
 				}				
 			}			
@@ -541,7 +591,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 			if (iArc.getType().getName().equals("contextRelation")) { 
 				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
 					iArc.setAttributeValue("confidence", "0.0");	
-					iArc.setAttributeValue("verifiedByDialogAgent", true);	
+					iArc.setAttributeValue("confidenceVerified", true);
 				}				
 			}			
 		}
@@ -565,13 +615,13 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		return "";
 	}
 	
-	// dummy method because toString of ParseArc is hard to read
-	private String arcToString(IArc iArc) {
-		String ts = "Arc(type: " + iArc.getType().getName() + " - ";
-		for (final String attrName : iArc.getAttributeNames()) {
-			ts = ts.concat(" " + attrName + ": " + iArc.getAttributeValue(attrName) + ",");
-		}
-		ts = ts.substring(0, ts.length() - 1).concat(")");
-		return ts;
-	}
+//	// dummy method because toString of ParseArc is hard to read
+//	private String arcToString(IArc iArc) {
+//		String ts = "Arc(type: " + iArc.getType().getName() + " - ";
+//		for (final String attrName : iArc.getAttributeNames()) {
+//			ts = ts.concat(" " + attrName + ": " + iArc.getAttributeValue(attrName) + ",");
+//		}
+//		ts = ts.substring(0, ts.length() - 1).concat(")");
+//		return ts;
+//	}
 }

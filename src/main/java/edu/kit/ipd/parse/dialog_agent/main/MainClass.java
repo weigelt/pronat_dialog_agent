@@ -4,7 +4,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import edu.kit.ipd.parse.dialog_agent.DialogAgent;
+import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
+import edu.kit.ipd.parse.luna.graph.IGraph;
 public class MainClass {
 
 	public static void main(String[] args) {
@@ -77,10 +79,12 @@ public class MainClass {
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/scene5_17.flac");   // not correct but if then is still there
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.14_9:32:39:469answer.flac");   // not correct but if then is still there
 		
+		// creates a graph out of a flac file
+		new BuildGraph(path, false);
 		
-		// start dialog agent and give it the graph
-		DialogAgent da = new DialogAgent(path);
-		da.init();
-		da.exec();
-	}
+//		// start dialog agent and give it the graph
+//		DialogAgent da = new DialogAgent(path);
+//		da.init();
+//		da.exec();
+	}	
 }

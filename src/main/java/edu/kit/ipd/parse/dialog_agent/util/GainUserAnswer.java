@@ -4,7 +4,6 @@ import java.nio.file.Path;
 
 import edu.kit.ipd.parse.dialog_agent.main.BuildGraph;
 import edu.kit.ipd.parse.dialog_agent.stt.VoiceRecorder;
-import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.IGraph;
 
 public final class GainUserAnswer {
@@ -19,13 +18,6 @@ public final class GainUserAnswer {
 		VoiceRecorder voiceRecorder = new VoiceRecorder();
 		Path pathAnswer = voiceRecorder.getAnswer();
 		BuildGraph bg = new BuildGraph(pathAnswer, true);
-		IGraph graph = null;
-		try {
-			graph = bg.getGraph();
-		} catch (MissingDataException mde) {
-			mde.printStackTrace();
-			// write in logger, that answerFile is empty
-		}
-		return graph;
+		return bg.getGraph();
 	}
 }
