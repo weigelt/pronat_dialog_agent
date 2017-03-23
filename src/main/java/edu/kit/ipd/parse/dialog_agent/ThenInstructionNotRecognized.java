@@ -55,18 +55,24 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 //		}
 		
 		// set attributes of the defect category
-		boolean attributeSet = false;
 		for (INode iNode : graph.getNodes()) {
 			if (iNode.getType().getName().equals("token")) {
-				if (!attributeSet) {
-					iNode.getType().addAttributeToType("boolean", "commandTypeVerified");
+				if (!iNode.getType().containsAttribute("commandTypeVerified", "boolean")) {
+					iNode.getType().addAttributeToType("boolean", "commandTypeVerified");		
 					iNode.setAttributeValue("commandTypeVerified", false);
-					iNode.getType().addAttributeToType("boolean", "commandTypeNotProcessable");
-					iNode.setAttributeValue("commandTypeNotProcessable", false);
-					attributeSet = true;
 				} else {
-					iNode.setAttributeValue("commandTypeVerified", false);
-					iNode.setAttributeValue("commandTypeNotProcessable", false);					
+					if (iNode.getAttributeValue("commandTypeVerified") == null) {
+						iNode.setAttributeValue("commandTypeVerified", false);					
+					}		
+				}
+				
+				if (!iNode.getType().containsAttribute("commandTypeNotProcessable", "boolean")) {
+					iNode.getType().addAttributeToType("boolean", "commandTypeNotProcessable");		
+					iNode.setAttributeValue("commandTypeNotProcessable", false);
+				} else {
+					if (iNode.getAttributeValue("commandTypeNotProcessable") == null) {
+						iNode.setAttributeValue("commandTypeNotProcessable", false);					
+					}		
 				}
 			}
 		} 
@@ -100,7 +106,7 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 //			System.out.println(iteratorNode);
 //			System.out.println(iteratorNode.getAttributeValue("commandType"));
 			// this if condition prevents of trying the same issue over and over again
-			if (!iteratorNode.getAttributeValue("commandTypeNotProcessable").toString().equals(true) && !iteratorNode.getAttributeValue("commandTypeVerified").toString().equals(true)) { 
+			if (!iteratorNode.getAttributeValue("commandTypeNotProcessable").equals(true) && !iteratorNode.getAttributeValue("commandTypeVerified").equals(true)) { 
 				if (ifConditionFinished) {
 					if (iteratorNode.getAttributeValue("commandType").toString().equals("IF")) {
 						// new if before then -> then is missing
@@ -143,6 +149,8 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 	//			System.out.println("textPart size " + textPart.size());
 				// takes the next token node in the graph, till the last one is reached
 				hasNodes = false;
+			} else {
+				break;
 			}
 			for (IArc iArc : iteratorNode.getOutgoingArcs()) {
 				if (iArc.getType().getName().equals("relation")) {
@@ -176,13 +184,13 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 						question = question + iNode.getAttributeValue("value") + "  ";
 					}
 				} else if (i == 1) { // second question
-					question = question + "I did not get it. Focus, I will repeat your words and you should just repeat this part of your words, "
-							+ "which contains the then condition. Your words were:  ";
+					question = question + "I did not get it. Focus, your words contain a condition. Please just repeat the part, which tells me what I"
+							+ " have to do if the condition is true. Your words were:  ";
 					for (INode iNode : textPart) {
 						question = question + iNode.getAttributeValue("value") + "  ";
 					}
 				} else if (i == 2) { // third question
-					question = question + "Ok, last attempt. Please repeat the then part in your statement:  ";
+					question = question + "Ok, last attempt. Please repeat the instruction in your statement I have to perform, if the following condition is correct:  ";
 					for (INode iNode : textPart) {
 						question = question + iNode.getAttributeValue("value") + "  ";
 					}

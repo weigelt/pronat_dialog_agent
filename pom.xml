@@ -63,18 +63,15 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.ipd.parse</groupId>
-			<artifactId>ContextAnalyzer</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>context</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.ipd.parse</groupId>
 			<artifactId>condition_detection</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.ipd.parse</groupId>
-			<artifactId>CorefAnalyzer</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>coref</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

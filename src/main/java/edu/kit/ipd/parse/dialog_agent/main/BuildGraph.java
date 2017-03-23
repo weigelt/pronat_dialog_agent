@@ -6,6 +6,7 @@ import edu.kit.ipd.parse.conditionDetection.ConditionDetector;
 import edu.kit.ipd.parse.contextanalyzer.ContextAnalyzer;
 import edu.kit.ipd.parse.corefanalyzer.CorefAnalyzer;
 import edu.kit.ipd.parse.dialog_agent.DialogAgent;
+import edu.kit.ipd.parse.dialog_agent.util.Synthesizer;
 import edu.kit.ipd.parse.graphBuilder.GraphBuilder;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;
@@ -94,15 +95,16 @@ public class BuildGraph {
 			gb.exec(ppd);
 			graph = ppd.getGraph();
 			if (!agentMode) {
+				wsd.setGraph(graph);
+				wsd.exec();
+				contextAnalyzer.setGraph(graph);
+				contextAnalyzer.exec();
+				conditionDetector.setGraph(graph);
+				conditionDetector.exec();
+				corefAnalyzer.setGraph(graph);
+				corefAnalyzer.exec();
+				dialogAgent.setGraph(graph);
 				while (true) {
-					wsd.setGraph(graph);
-					wsd.exec();
-					contextAnalyzer.setGraph(graph);
-					contextAnalyzer.exec();
-					conditionDetector.setGraph(graph);
-					conditionDetector.exec();
-					corefAnalyzer.setGraph(graph);
-					corefAnalyzer.exec();
 					// multiple calls of the agents!
 					for (int i = 0; i < 3; i++) {
 						wsd.exec();
@@ -110,7 +112,6 @@ public class BuildGraph {
 						conditionDetector.exec();
 						corefAnalyzer.exec();
 					}
-					dialogAgent.setGraph(graph);
 					dialogAgent.exec();
 				}
 			}

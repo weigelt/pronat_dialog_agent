@@ -40,20 +40,21 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		twiceSameWordConfidenceThreshold = Double.parseDouble(props.getProperty("TWICE_SAME_WORD_ASR_CONFIDENCE_THRESHOLD"));
 		askOriginalWordConfidenceThreshold = Double.parseDouble(props.getProperty("ASK_ORIGINAL_WORD_ARS_CONFIDENCE_THRESHOLD"));
 		
-		this.graph = graph;
-		lowConfidenceMainNodes = getTokenNodesWithLowConfidence();	
-		if (lowConfidenceMainNodes.isEmpty()) 
-			return false; 
-		return true;
+//		this.graph = graph;
+//		lowConfidenceMainNodes = getTokenNodesWithLowConfidence();	
+//		if (lowConfidenceMainNodes.isEmpty()) 
+//			return false; 
+//		return true;
+		return false;
 	}
 	
 	@Override
 	protected void solveDefectCategory() {
 		logger.info("Start solving asr issues - words with low confidence detected");
 		
-//		System.out.println(graph.showGraph());
-//		for (INode iNode : graph.getNodes()) 
-//			System.out.println(iNode);
+		System.out.println(graph.showGraph());
+		for (INode iNode : graph.getNodes()) 
+			System.out.println(iNode);
 		
 		// sort lowConfidenceMainNodes by asrConfidence attribute
 		Collections.sort(lowConfidenceMainNodes, new Comparator<INode>() {
