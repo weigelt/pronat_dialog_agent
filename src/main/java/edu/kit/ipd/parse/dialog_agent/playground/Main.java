@@ -15,26 +15,21 @@ import edu.kit.ipd.parse.luna.graph.INode;
 public class Main {
 
 	public static void main(String[] args) {
-		VoiceRecorder voiceRecorder = new VoiceRecorder();
-		System.out.println(voiceRecorder.getAnswer());
-		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/answerWed Jan 11 14:36:06 CET 2017.flac");
-//		// build the graph, in future done by the framework
-//		BuildGraph bg = new BuildGraph(path);
-//		bg.buildGraph();
-//		PrePipelineData ppd = bg.getGraph(); // just works after building the graph
-//		try {
-//			System.out.println(ppd.getGraph().showGraph());
-//			Object[] array = ppd.getGraph().getNodes().toArray();
-//			for (int i = 0; i < array.length; i++) {
-//				INode iNode = (INode) array[i];
-//				System.out.println(iNode.toString()); // ########
-////				System.out.println(iNode.getAllAttributeNamesAndValuesAsPair().toString());
-////				System.out.println(iNode.getAttributeValue("asrConfidence"));
-//			}
-//		} catch (final MissingDataException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+//		VoiceRecorder voiceRecorder = new VoiceRecorder();
+//		System.out.println(voiceRecorder.getAnswer());
+//		Path path = voiceRecorder.getAnswer();
+		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_18:40:33:749answer.flac");
+		
+		
+
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_15:07:58:351answer.flac"); // case short question
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_16:01:04:059answer.flac"); // case b -> y && case b -> x,y
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_16:51:19:676answer.flac"); // case c -> z && case c -> y,z
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_17:01:25:553answer.flac"); // case a -> x && case a -> w,x
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_17:06:23:139answer.flac"); // case b,c -> y (1) && case b,c -> y (2)
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_17:59:10:650answer.flac"); // case a,b -> x (1) (implicit (2))
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_18:40:33:749answer.flac"); // case c,d -> z (1) (implicit (2))
+		new BuildGraph(path, false);
 	}
 
 }

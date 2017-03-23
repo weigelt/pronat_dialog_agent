@@ -213,13 +213,13 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		System.out.println("endNote " + endNode);
 		
 		List<INode> textPart = getQuestionableTextPart(contextEntityNode, contextTokens, endNode);
-		int size = textPart.size();
-		for (int i = 0; i < size; i++) { // removes <eps> because watson asr can not handle it as input
-			if (textPart.get(i).getAttributeValue("value").equals("<eps>")) {
-				textPart.remove(i);
-				size--;
-			}
-		}
+//		int size = textPart.size();
+//		for (int i = 0; i < size; i++) { // removes <eps> because watson asr can not handle it as input
+//			if (textPart.get(i).getAttributeValue("value").equals("<eps>")) {
+//				textPart.remove(i);
+//				size--;
+//			}
+//		}
 
 		// spezialfall zwei oder mehr it als antwortmoeglichkeit!!!________________________________________________
 		Map<INode, String> allContextEntities = new HashMap<INode, String>(); // contains all target contextEntities and their tokens as one String

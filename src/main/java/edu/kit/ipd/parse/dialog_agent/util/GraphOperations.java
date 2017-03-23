@@ -76,14 +76,19 @@ public final class GraphOperations {
 		
 		// iterate till the textPart begins with a verb phrase
 		while (!iNode.getAttributeValue("chunkName").equals("VP")) {
+			boolean relationArcFound = false;
 			if (!iNode.getIncomingArcs().isEmpty()) {
 				for (IArc iArc : iNode.getIncomingArcs()) {
 					if (iArc.getType().getName().equals("relation")) {
+						relationArcFound = true;
 						iNode = iArc.getSourceNode();
 					}
 				}
 			}
 			else {
+				break;
+			}
+			if (!relationArcFound) {
 				break;
 			}
 		}
@@ -94,28 +99,40 @@ public final class GraphOperations {
 	// get last node of the following noun phrase
 	public static INode getSubsequentNounNode(INode iNode) {
 		// if iNode is already a noun phrase
-		while (iNode.getAttributeValue("chunkName").equals("NP") && !iNode.getIncomingArcs().isEmpty()) {
+		while (iNode.getAttributeValue("chunkName").equals("NP")) {
+			boolean relationArcFound = false;
 			for (IArc iArc : iNode.getOutgoingArcs()) {
 				if (iArc.getType().getName().equals("relation")) {
+					relationArcFound = true;
 					iNode = iArc.getTargetNode();
 				}
+			}
+			if (!relationArcFound) {
+				break;
 			}
 		}
 		
 		// gather all nodes between iNode and the next noun phrase
-		while (!iNode.getAttributeValue("chunkName").equals("NP") && !iNode.getIncomingArcs().isEmpty()) {
+		while (!iNode.getAttributeValue("chunkName").equals("NP")) {
+			boolean relationArcFound = false;
 			for (IArc iArc : iNode.getOutgoingArcs()) {
 				if (iArc.getType().getName().equals("relation")) {
+					relationArcFound = true;
 					iNode = iArc.getTargetNode();
 				}
+			}
+			if (!relationArcFound) {
+				break;
 			}
 		}
 		
 		// if iNode is already a noun phrase
 		boolean search = true;
-		while (iNode.getAttributeValue("chunkName").equals("NP") && !iNode.getIncomingArcs().isEmpty() && search) {
+		while (iNode.getAttributeValue("chunkName").equals("NP") && search) {
+			boolean relationArcFound = false;
 			for (IArc iArc : iNode.getOutgoingArcs()) {
 				if (iArc.getType().getName().equals("relation")) {
+					relationArcFound = true;
 					if (!iNode.getAttributeValue("chunkName").equals("NP")) {
 						// do not the nodes it anymore, because this node is behind the next noun phrase
 						search = false;
@@ -124,6 +141,9 @@ public final class GraphOperations {
 						iNode = iArc.getTargetNode();
 					}
 				}
+			}
+			if (!relationArcFound) {
+				break;
 			}
 		}
 			
