@@ -6,7 +6,6 @@ import edu.kit.ipd.parse.conditionDetection.ConditionDetector;
 import edu.kit.ipd.parse.contextanalyzer.ContextAnalyzer;
 import edu.kit.ipd.parse.corefanalyzer.CorefAnalyzer;
 import edu.kit.ipd.parse.dialog_agent.DialogAgent;
-import edu.kit.ipd.parse.dialog_agent.util.Synthesizer;
 import edu.kit.ipd.parse.graphBuilder.GraphBuilder;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.data.PrePipelineData;

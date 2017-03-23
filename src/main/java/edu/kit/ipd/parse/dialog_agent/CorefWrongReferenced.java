@@ -494,15 +494,16 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		
 		// iterate till the textPart begins with a verb phrase
 		while (!startNode.getAttributeValue("chunkName").equals("VP")) {
-			if (!startNode.getIncomingArcs().isEmpty()) {
-				for (IArc iArc : startNode.getIncomingArcs()) {
-					if (iArc.getType().getName().equals("relation")) {
-						startNode = iArc.getSourceNode();
-					}
- 				}
+			boolean relationArcFound = false; // checks if we are at the beginning of the graph
+			for (IArc iArc : startNode.getIncomingArcs()) {
+				if (iArc.getType().getName().equals("relation")) {
+					startNode = iArc.getSourceNode();
+					relationArcFound = true;
+				}
+ 			}
+			if (relationArcFound) {
 				textPart.add(startNode);
-			}
-			else {
+			} else {
 				break;
 			}
 		}
@@ -513,39 +514,41 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 			for (IArc iArc : endNode.getOutgoingArcs()) {
 				if (iArc.getType().getName().equals("relation")) {
 					endNode = iArc.getTargetNode();
+					textPart.add(0, endNode);
 				}
 			}
-			textPart.add(0, endNode);
 		}
 	
 		// iterate till the textPart ends with a complete noun phrase		
 		while (!endNode.getAttributeValue("chunkName").equals("NP")) {
-			if (!endNode.getOutgoingArcs().isEmpty()) {
-				for (IArc iArc : endNode.getOutgoingArcs()) {
-					if (iArc.getType().getName().equals("relation")) {
-						endNode = iArc.getTargetNode();
-					}
- 				}
+			boolean relationArcFound = false; // checks if we are at the beginning of the graph
+			for (IArc iArc : endNode.getOutgoingArcs()) {
+				if (iArc.getType().getName().equals("relation")) {
+					endNode = iArc.getTargetNode();
+					relationArcFound = true;
+				}
+ 			}
+			if (relationArcFound) {				
 				textPart.add(0, endNode);
-			}
-			else {
+			} else {
 				break;
 			}
 		}
 		
 		// complete the noun phrase
 		while (endNode.getAttributeValue("chunkName").equals("NP")) {
-			if (!endNode.getOutgoingArcs().isEmpty()) {
-				for (IArc iArc : endNode.getOutgoingArcs()) {
-					if (iArc.getType().getName().equals("relation")) {
-						endNode = iArc.getTargetNode();
-					}
- 				}
+			boolean relationArcFound = false; // checks if we are at the beginning of the graph
+			for (IArc iArc : endNode.getOutgoingArcs()) {
+				if (iArc.getType().getName().equals("relation")) {
+					endNode = iArc.getTargetNode();
+					relationArcFound = true;
+				}
+ 			}
+			if (relationArcFound) {
 				if (endNode.getAttributeValue("chunkName").equals("NP")) {
 					textPart.add(0, endNode);					
 				}
-			}
-			else {
+			} else {
 				break;
 			}
 		}
