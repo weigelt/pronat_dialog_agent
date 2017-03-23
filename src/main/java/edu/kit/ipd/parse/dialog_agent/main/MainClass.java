@@ -43,8 +43,8 @@ public class MainClass {
 		
 		
 
-//		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s6p02.flac");   // coref third best szenario but no coref!!! 
-		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s7p07.flac");   // coref second best szenario but no coref!!! 
+		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s6p02.flac");   // coref third best szenario but no coref!!! 
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s7p07.flac");   // coref second best szenario but no coref!!! 
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s7p09.flac");   // coref best szenario but no coref!!! 
 		
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/speeches/s6p09.flac");   // coref szenario

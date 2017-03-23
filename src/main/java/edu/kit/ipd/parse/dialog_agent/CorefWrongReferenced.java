@@ -149,10 +149,10 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 				result = true;
 			}
 			
-//			System.out.println(iNode);
-//			System.out.println("size " + confidenceCorrectList.size());
-//			System.out.println("size " + confidenceHighList.size());
-//			System.out.println("size " + confidenceLowList.size());
+			System.out.println(iNode);
+			System.out.println("size " + confidenceCorrectList.size());
+			System.out.println("size " + confidenceHighList.size());
+			System.out.println("size " + confidenceLowList.size());
 		}
 		
 //		for (int i = 0; i < questionableContextEntities.size(); i++) {
@@ -165,6 +165,9 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 	protected void solveDefectCategory() {
 		logger.info("Start solving coreference resolution issues - ambiguous coreference found");
 		
+//		for (INode iNode : questionableContextEntities) {
+//			System.out.println("questionable " + iNode);
+//		}
 		INode contextEntityNode = questionableContextEntities.get(0);
 //		int countAnaphoraArcs = 0;
 //		for (IArc iArc : contextEntityNode.getOutgoingArcs()) {
@@ -404,6 +407,37 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 //				}				
 				updateAnaphoraReferent(contextEntityNode, matchedContextEntity);
 				isNotSolved = false;
+			}
+		}
+		
+		System.out.println("");
+		System.out.println("");
+		for (IArc iArc : graph.getArcs()) {
+			if (iArc.getType().getName().equals("contextRelation")) {
+				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
+					INode anaphoraSourceNode = iArc.getSourceNode();
+					System.out.println(detectContextEntityElements(anaphoraSourceNode));
+//					for (IArc sourceOutgoingArc : anaphoraSourceNode.getOutgoingArcs()) {
+//						if (sourceOutgoingArc.getType().getName().equals("reference"))
+//							System.out.println("anaphora source token " + sourceOutgoingArc.getTargetNode());
+//					}
+					System.out.println(" anaphora source node " + anaphoraSourceNode);
+					System.out.println("  " + arcToString(iArc));
+					INode anaphoraTargetNode = iArc.getTargetNode();
+					System.out.println(" anaphora target node " + anaphoraTargetNode);
+					System.out.println(detectContextEntityElements(anaphoraTargetNode));
+//					for (IArc targetOutgoingArc : anaphoraTargetNode.getOutgoingArcs()) {
+////						System.out.println(arcToString(targetOutgoingArc));
+//						if (targetOutgoingArc.getType().getName().equals("reference"))
+//							System.out.println("anaphora target token " + targetOutgoingArc.getTargetNode());
+////							for (IArc targetOutgoingArc2 : targetOutgoingArc.getTargetNode().getOutgoingArcs()) {
+//////								System.out.println(arcToString(targetOutgoingArc2));
+////								if (targetOutgoingArc2.getType().getName().equals("reference"))
+////									System.out.println("anaphora target token " + targetOutgoingArc2.getTargetNode());
+////							}
+//					}
+					System.out.println("");
+				}
 			}
 		}
 	}
