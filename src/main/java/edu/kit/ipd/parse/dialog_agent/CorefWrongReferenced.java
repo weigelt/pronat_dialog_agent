@@ -273,14 +273,14 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		List<INode> tokensEntityToAskForList = new ArrayList<INode>();
 		detectContextEntityTokens(tokensEntityToAskForList, contextEntityNode);
 //		System.out.println("entities to ask for");
-		logger.debug("Source entity " + contextEntityNode);
+		logger.info("Source entity " + contextEntityNode);
 		for (INode iNode : tokensEntityToAskForList) {
-			logger.debug("Possible target entity " + iNode);
+			logger.info("Possible target entity " + iNode);
 			for (IArc iArc : iNode.getIncomingArcs()) {
 				if (iArc.getType().getName().equals("contextRelation")) { 
 					if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
 						if (iArc.getSourceNode().equals(contextEntityNode)) {
-							logger.debug("AnaphoraReferent confidence of this entity " + iArc.getAttributeValue("confidence"));
+							logger.info("AnaphoraReferent confidence of this entity " + iArc.getAttributeValue("confidence"));
 						}
 					}
 				}
@@ -322,7 +322,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		
 		List<INode> matchedContextEntityTokens = checkMatch(targetEntities, userAnswerGraph);
 		if (!matchedContextEntityTokens.isEmpty()) {
-			logger.debug("Identified target context entity is " + matchedContextEntityTokens.get(0));
+			logger.info("Identified target context entity is " + matchedContextEntityTokens.get(0));
 		}
 		
 		// 
@@ -351,7 +351,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 //					System.out.println(userAnswerGraph.showGraph());
 					matchedContextEntityTokens = checkMatch(targetEntities, userAnswerGraph);
 					if (!matchedContextEntityTokens.isEmpty()) {
-						logger.debug("Identified target context entity is " + matchedContextEntityTokens.get(0));
+						logger.info("Identified target context entity is " + matchedContextEntityTokens.get(0));
 					}
 					secondQuestionAsked = true;
 				} else {
@@ -378,7 +378,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 								if (node.getAttributeValue("value").toString().equals("yes")) {
 									matchedContextEntityTokens.add(targetEntities.get(i));
 									if (!matchedContextEntityTokens.isEmpty()) {
-										logger.debug("Identified target context entity is " + matchedContextEntityTokens.get(0));
+										logger.info("Identified target context entity is " + matchedContextEntityTokens.get(0));
 									}
 									break;							
 								} else if (node.getAttributeValue("value").toString().equals("no")) {
@@ -396,7 +396,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 						if (counter == allContextEntities.keySet().size()) {
 							// nothing fits set all considered anaphoraReferent arcs 0.0
 							setAnaphoraReferentArcsZero(contextEntityNode);
-							logger.debug("None of the above is a target context entity. All considered anaphoraReferent arc confidences are set 0.0.");
+							logger.info("None of the above is a target context entity. All considered anaphoraReferent arc confidences are set 0.0.");
 							isNotSolved = false;
 						}					
 					}

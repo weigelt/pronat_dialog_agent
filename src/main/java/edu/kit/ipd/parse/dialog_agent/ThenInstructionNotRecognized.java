@@ -171,7 +171,7 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 	protected void solveDefectCategory() {
 		logger.info("Start solving ConditionDetector issues - IF-Condition without THEN-Block found");
 		for (INode iNode : textPart) {
-			logger.debug("Affected passage " + iNode);
+			logger.info("Affected passage " + iNode);
 		}
 		
 		List<INode> realMatch = new ArrayList<INode>();

@@ -42,14 +42,14 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		
 
 		for (INode iNode : graph.getNodes()) 
-			logger.debug("initial nodes " + iNode);
+			logger.info("initial nodes " + iNode);
 		
 		this.graph = graph;
-		lowConfidenceMainNodes = getTokenNodesWithLowConfidence();	
-		if (lowConfidenceMainNodes.isEmpty()) 
-			return false; 
-		return true;
-//		return false;
+//		lowConfidenceMainNodes = getTokenNodesWithLowConfidence();	
+//		if (lowConfidenceMainNodes.isEmpty()) 
+//			return false; 
+//		return true;
+		return false;
 	}
 	
 	@Override
@@ -91,7 +91,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		// log all lowConfidenceMainNodes
 		for (INode lowConfidenceMainNode : lowConfidenceMainNodes) {
 //			System.out.println("lowConfidenceNode " + lowConfidenceMainNode);
-			logger.debug("Nodes with low asrConfidence " + lowConfidenceMainNode);
+			logger.info("Nodes with low asrConfidence " + lowConfidenceMainNode);
 		}
 		
 //		// that attribute is necessary to check if the node contains a further node
@@ -150,7 +150,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		graph = bg.getGraph();
 		logger.info("Asr correction done - new graph built");
 		for (INode iNode : graph.getNodes()) {
-			logger.debug("rebuilt graph nodes " + iNode);
+			logger.info("rebuilt graph nodes " + iNode);
 		}
 //		System.out.println(graph.showGraph());
 	}
