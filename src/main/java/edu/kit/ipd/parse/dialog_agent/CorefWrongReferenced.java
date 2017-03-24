@@ -27,7 +27,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 	private double anaphoraReferentCorrectThreshold;
 	private double anaphoraReferentMostProbablyCorrectThreshold;
 	
-	List<INode> questionableContextEntities = new ArrayList<INode>();
+	List<INode> questionableContextEntities;
 	
 	@Override
 	protected boolean analyseGraph(IGraph graph) {
@@ -37,42 +37,43 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		
 		this.graph = graph;
 		boolean result = false;
+		questionableContextEntities = new ArrayList<INode>();
 		
 //		System.out.println(graph.showGraph());
 //		for (INode iNode : graph.getNodes()) {
 //			System.out.println(iNode);
 //		}
 ////		
-		System.out.println("");
-		System.out.println("");
-		for (IArc iArc : graph.getArcs()) {
-			if (iArc.getType().getName().equals("contextRelation")) {
-				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
-					INode anaphoraSourceNode = iArc.getSourceNode();
-					System.out.println(detectContextEntityElements(anaphoraSourceNode));
-//					for (IArc sourceOutgoingArc : anaphoraSourceNode.getOutgoingArcs()) {
-//						if (sourceOutgoingArc.getType().getName().equals("reference"))
-//							System.out.println("anaphora source token " + sourceOutgoingArc.getTargetNode());
-//					}
-					System.out.println(" anaphora source node " + anaphoraSourceNode);
-					System.out.println("  " + arcToString(iArc));
-					INode anaphoraTargetNode = iArc.getTargetNode();
-					System.out.println(" anaphora target node " + anaphoraTargetNode);
-					System.out.println(detectContextEntityElements(anaphoraTargetNode));
-//					for (IArc targetOutgoingArc : anaphoraTargetNode.getOutgoingArcs()) {
-////						System.out.println(arcToString(targetOutgoingArc));
-//						if (targetOutgoingArc.getType().getName().equals("reference"))
-//							System.out.println("anaphora target token " + targetOutgoingArc.getTargetNode());
-////							for (IArc targetOutgoingArc2 : targetOutgoingArc.getTargetNode().getOutgoingArcs()) {
-//////								System.out.println(arcToString(targetOutgoingArc2));
-////								if (targetOutgoingArc2.getType().getName().equals("reference"))
-////									System.out.println("anaphora target token " + targetOutgoingArc2.getTargetNode());
-////							}
-//					}
-					System.out.println("");
-				}
-			}
-		}
+//		System.out.println("");
+//		System.out.println("");
+//		for (IArc iArc : graph.getArcs()) {
+//			if (iArc.getType().getName().equals("contextRelation")) {
+//				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
+//					INode anaphoraSourceNode = iArc.getSourceNode();
+//					System.out.println(detectContextEntityElements(anaphoraSourceNode));
+////					for (IArc sourceOutgoingArc : anaphoraSourceNode.getOutgoingArcs()) {
+////						if (sourceOutgoingArc.getType().getName().equals("reference"))
+////							System.out.println("anaphora source token " + sourceOutgoingArc.getTargetNode());
+////					}
+//					System.out.println(" anaphora source node " + anaphoraSourceNode);
+//					System.out.println("  " + arcToString(iArc));
+//					INode anaphoraTargetNode = iArc.getTargetNode();
+//					System.out.println(" anaphora target node " + anaphoraTargetNode);
+//					System.out.println(detectContextEntityElements(anaphoraTargetNode));
+////					for (IArc targetOutgoingArc : anaphoraTargetNode.getOutgoingArcs()) {
+//////						System.out.println(arcToString(targetOutgoingArc));
+////						if (targetOutgoingArc.getType().getName().equals("reference"))
+////							System.out.println("anaphora target token " + targetOutgoingArc.getTargetNode());
+//////							for (IArc targetOutgoingArc2 : targetOutgoingArc.getTargetNode().getOutgoingArcs()) {
+////////								System.out.println(arcToString(targetOutgoingArc2));
+//////								if (targetOutgoingArc2.getType().getName().equals("reference"))
+//////									System.out.println("anaphora target token " + targetOutgoingArc2.getTargetNode());
+//////							}
+////					}
+//					System.out.println("");
+//				}
+//			}
+//		}
 		
 		// add the attribute confidenceVerified (with default value false) to the contextRelation arcs, which contain the anaphoraReferent arcs 
 		for (IArc iArc : graph.getArcs()) {
@@ -149,10 +150,10 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 				result = true;
 			}
 			
-			System.out.println(iNode);
-			System.out.println("size " + confidenceCorrectList.size());
-			System.out.println("size " + confidenceHighList.size());
-			System.out.println("size " + confidenceLowList.size());
+//			System.out.println(iNode);
+//			System.out.println("size " + confidenceCorrectList.size());
+//			System.out.println("size " + confidenceHighList.size());
+//			System.out.println("size " + confidenceLowList.size());
 		}
 		
 //		for (int i = 0; i < questionableContextEntities.size(); i++) {
@@ -303,8 +304,15 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 			question = question + textPart.get(textPart.size() - i - 1).getAttributeValue("value") + "  ";
 		}
 
+		for (INode iNode : textPart) {
+			logger.info("Coref question " + iNode);
+		}
+
 		Synthesizer.enunciateQuestion(question);
 		IGraph userAnswerGraph = GainUserAnswer.getUserAnswer();
+		for (INode iNode : userAnswerGraph.getNodes()) {
+			logger.info("Coref answer " + iNode);
+		}
 //		System.out.println(userAnswerGraph.showGraph());
 		
 

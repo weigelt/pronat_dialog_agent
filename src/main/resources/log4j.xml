@@ -8,13 +8,11 @@
 			<param name="ConversionPattern" value="%-5p %c{1} - %m%n" />
 		</layout>
 	</appender>
-	<appender name="file" class="org.apache.log4j.RollingFileAppender">
+	<appender name="file" class="edu.kit.ipd.parse.dialog_agent.util.NewLogForEachRunFileAppender">
 		<param name="file" value="./log/dialogAgent.log" />
    		<param name="immediateFlush" value="true"/>
    		<param name="threshold" value="debug"/>
 		<param name="append" value="false" />
-		<param name="maxFileSize" value="10MB" />
-		<param name="maxBackupIndex" value="10" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
 		</layout>
@@ -24,7 +22,7 @@
 	</logger>
 
 	<root>
-		<priority value="debug" />
+		<priority value="info" />
 		<appender-ref ref="console" />
 		<appender-ref ref="file" />
 	</root>

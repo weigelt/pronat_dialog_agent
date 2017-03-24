@@ -126,14 +126,14 @@ public final class GraphOperations {
 			}
 		}
 		
-		// if iNode is already a noun phrase
+		// the second noun phrase
 		boolean search = true;
 		while (iNode.getAttributeValue("chunkName").equals("NP") && search) {
 			boolean relationArcFound = false;
 			for (IArc iArc : iNode.getOutgoingArcs()) {
 				if (iArc.getType().getName().equals("relation")) {
 					relationArcFound = true;
-					if (!iNode.getAttributeValue("chunkName").equals("NP")) {
+					if (!iArc.getTargetNode().getAttributeValue("chunkName").equals("NP")) {
 						// do not the nodes it anymore, because this node is behind the next noun phrase
 						search = false;
 						break;

@@ -49,6 +49,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		if (lowConfidenceMainNodes.isEmpty()) 
 			return false; 
 		return true;
+//		return false;
 	}
 	
 	@Override
@@ -186,6 +187,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 					// do not add this node
 				} else {	
 					question = question + textNode.getAttributeValue("value") + " ";
+					logger.info("Question " + textNode);	
 				}
 			}
 			
@@ -196,7 +198,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 			for (INode node : userAnswerGraph.getNodes()) {
 				if (node.getType().getName().equals("token")) {
 					answer.add(node);
-//					System.out.println(" answer " + node);			
+					logger.info("Answer " + node);			
 				}
 			}
 			
@@ -421,6 +423,26 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 						break;
 					}
 				}	
+			} else if (u != 2) { // if nothing worked, check match of the nodes before and after the viewed node - if match and high confidence replace
+				for (int i = 0; i < textPart.size(); i++) {
+					if (textPart.get(i).equals(iNode)) { // i have the node to verify
+						if (i > 1 && i < (textPart.size() - 1)) {
+							for (int z = 0; z < answer.size(); z++) {
+								if (answer.get(z).getAttributeValue("value").equals(textPart.get(i - 1).getAttributeValue("value"))) {
+									if (z <= answer.size() - 3 && answer.get(z + 2).getAttributeValue("value").equals(textPart.get(i + 1).getAttributeValue("value"))) {
+										if ((Double.parseDouble(answer.get(z + 1).getAttributeValue("asrConfidence").toString()) > reliableConfidenceThreshold)) {
+											// replace
+											textPart.get(i).setAttributeValue("value", answer.get(z + 1).getAttributeValue("value"));
+											u = 2;
+											logger.info("case fallback");
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}				
 			} else {
 				// not understood ask again
 			}

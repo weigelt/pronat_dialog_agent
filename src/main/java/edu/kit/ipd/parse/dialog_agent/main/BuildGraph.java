@@ -68,14 +68,14 @@ public class BuildGraph {
 		gb = new GraphBuilder();
 		gb.init();
 		if (!agentMode) {
-//			contextAnalyzer = new ContextAnalyzer();
-//			contextAnalyzer.init();
-//			wsd = new Wsd();
-//			wsd.init();
-//			conditionDetector = new ConditionDetector();
-//			conditionDetector.init();
-//			corefAnalyzer = new CorefAnalyzer();
-//			corefAnalyzer.init();
+			contextAnalyzer = new ContextAnalyzer();
+			contextAnalyzer.init();
+			wsd = new Wsd();
+			wsd.init();
+			conditionDetector = new ConditionDetector();
+			conditionDetector.init();
+			corefAnalyzer = new CorefAnalyzer();
+			corefAnalyzer.init();
 			dialogAgent = new DialogAgent();
 			dialogAgent.init();
 		}
@@ -94,22 +94,22 @@ public class BuildGraph {
 			gb.exec(ppd);
 			graph = ppd.getGraph();
 			if (!agentMode) {
-//				wsd.setGraph(graph);
-//				wsd.exec();
-//				contextAnalyzer.setGraph(graph);
-//				contextAnalyzer.exec();
-//				conditionDetector.setGraph(graph);
-//				conditionDetector.exec();
-//				corefAnalyzer.setGraph(graph);
-//				corefAnalyzer.exec();
+				wsd.setGraph(graph);
+				wsd.exec();
+				contextAnalyzer.setGraph(graph);
+				contextAnalyzer.exec();
+				conditionDetector.setGraph(graph);
+				conditionDetector.exec();
+				corefAnalyzer.setGraph(graph);
+				corefAnalyzer.exec();
 				dialogAgent.setGraph(graph);
 				while (true) {
 					// multiple calls of the agents!
 					for (int i = 0; i < 3; i++) {
-//						wsd.exec();
-//						contextAnalyzer.exec();
-//						conditionDetector.exec();
-//						corefAnalyzer.exec();
+						wsd.exec();
+						contextAnalyzer.exec();
+						conditionDetector.exec();
+						corefAnalyzer.exec();
 					}
 					dialogAgent.exec();
 				}

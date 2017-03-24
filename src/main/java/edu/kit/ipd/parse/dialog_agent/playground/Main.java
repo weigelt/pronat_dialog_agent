@@ -15,10 +15,10 @@ import edu.kit.ipd.parse.luna.graph.INode;
 public class Main {
 
 	public static void main(String[] args) {
-//		VoiceRecorder voiceRecorder = new VoiceRecorder();
-//		System.out.println(voiceRecorder.getAnswer());
-//		Path path = voiceRecorder.getAnswer();
-		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_18:40:33:749answer.flac");
+		VoiceRecorder voiceRecorder = new VoiceRecorder();
+		System.out.println(voiceRecorder.getAnswer());
+		Path path = voiceRecorder.getAnswer();
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_16:01:04:059answer.flac");
 		
 		
 
@@ -29,6 +29,7 @@ public class Main {
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_17:06:23:139answer.flac"); // case b,c -> y (1) && case b,c -> y (2)
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_17:59:10:650answer.flac"); // case a,b -> x (1) (implicit (2))
 //		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_18:40:33:749answer.flac"); // case c,d -> z (1) (implicit (2))
+//		Path path = Paths.get("/Users/Mario/Dialogmanager/audio/2017.03.23_21:38:53:528answer.flac"); // case fallback
 		new BuildGraph(path, false);
 	}
 
