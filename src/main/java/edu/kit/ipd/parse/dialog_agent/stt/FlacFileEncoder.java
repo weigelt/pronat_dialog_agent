@@ -164,7 +164,6 @@ public class FlacFileEncoder {
 			int unencodedSamples = 0;
 			int totalSamples = 0;
 			while ((samplesRead = sin.read(samplesIn, 0, MAX_READ)) != -1) {
-				// System.err.println("Read: " + read);
 				framesRead = samplesRead / frameSize;
 				if (bigEndian) {
 					for (int i = 0; i < framesRead * channels; i++) {
@@ -208,10 +207,6 @@ public class FlacFileEncoder {
 				else
 					unencodedSamples -= flac.encodeSamples(unencodedSamples, false);
 				totalSamples += unencodedSamples;
-				// unencodedSamples = 0;
-
-				// }
-				// System.err.println("read : "+ samplesRead);
 			}
 			totalSamples += unencodedSamples;
 			if (useThreads) {
@@ -232,7 +227,6 @@ public class FlacFileEncoder {
 				status = Status.UNSUPPORTED_SAMPLE_SIZE;
 		}
 
-		// System.err.print("LastTotalSamples: "+lastTotalSamples);
 		return status;
 	}
 }

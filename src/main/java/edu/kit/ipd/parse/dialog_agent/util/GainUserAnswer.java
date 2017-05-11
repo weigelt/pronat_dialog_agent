@@ -2,7 +2,7 @@ package edu.kit.ipd.parse.dialog_agent.util;
 
 import java.nio.file.Path;
 
-import edu.kit.ipd.parse.dialog_agent.main.BuildGraph;
+import edu.kit.ipd.parse.dialog_agent.build_graph.BuildGraph;
 import edu.kit.ipd.parse.dialog_agent.stt.VoiceRecorder;
 import edu.kit.ipd.parse.luna.graph.IGraph;
 

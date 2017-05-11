@@ -60,7 +60,6 @@ public class AudioPlayer implements PCMProcessor {
      * @throws LineUnavailableException Thrown if error playing file
      */
     public void decode(String inFileName) throws IOException, LineUnavailableException {
-//        System.out.println("Play [" + inFileName + "]");
         FileInputStream is = new FileInputStream(inFileName);
         
         FLACDecoder decoder = new FLACDecoder(is);

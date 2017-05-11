@@ -11,7 +11,7 @@ public abstract class AbstractDefectCategory implements IDefectCategory {
 			// solve one issue of this defect category
 			solveDefectCategory(); 
 		} else {
-			// go on to the next defect category no indicator found
+			// go on to the next defect category, no indicator found yet
 			if (nextDefectCategory != null)
 				nextDefectCategory.processDefectCategory(graph);	
 		}
