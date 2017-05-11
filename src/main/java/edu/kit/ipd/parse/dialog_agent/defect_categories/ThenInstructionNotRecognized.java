@@ -131,7 +131,7 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 	protected void solveDefectCategory() {
 		logger.info("Start solving ConditionDetector issues - IF-Condition without THEN-Block found");
 		for (INode iNode : textPart) {
-			logger.info("Affected passage " + iNode);
+			logger.debug("Affected passage " + iNode);
 		}
 		
 		List<INode> realMatch = new ArrayList<INode>();
@@ -162,14 +162,14 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 				}
 				
 				for (INode iNode : textPart) {
-					logger.info("Condition question " + iNode);
+					logger.debug("Condition question " + iNode);
 				}
 
 				// ask the user and get the answer graph
 				Synthesizer.enunciateQuestion(question);
 				IGraph userAnswerGraph = GainUserAnswer.getUserAnswer();
 				for (INode iNode : userAnswerGraph.getNodes()) {
-					logger.info("Condition answer " + iNode);
+					logger.debug("Condition answer " + iNode);
 				}
 				
 				// check if the then-condition was recognized properly
@@ -178,7 +178,7 @@ public class ThenInstructionNotRecognized extends AbstractDefectCategory {
 			} else {
 				// set commandType = THEN and conditionVerified = true
 				for (INode iNode : realMatch) {
-					logger.info("Then-Block node: " + iNode);
+					logger.debug("Then-Block node: " + iNode);
 					iNode.setAttributeValue("commandType", "THEN");
 				}
 				for (INode iNode : textPart) {

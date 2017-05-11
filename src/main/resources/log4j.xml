@@ -18,7 +18,7 @@
 		</layout>
 	</appender>
 	<logger name="edu.kit.ipd.parse.dialog_agent">
-		<level value="info"></level>
+		<level value="debug"></level>
 	</logger>
 
 	<root>

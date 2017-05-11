@@ -37,7 +37,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		twiceSameWordConfidenceThreshold = Double.parseDouble(props.getProperty("TWICE_SAME_WORD_ASR_CONFIDENCE_THRESHOLD"));
 
 		for (INode iNode : graph.getNodes()) 
-			logger.info("initial nodes " + iNode);
+			logger.debug("initial nodes " + iNode);
 		
 		this.graph = graph;
 		lowConfidenceMainNodes = getTokenNodesWithLowConfidence();	
@@ -81,7 +81,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		
 		// log all lowConfidenceMainNodes
 		for (INode lowConfidenceMainNode : lowConfidenceMainNodes) {
-			logger.info("Nodes with low asrConfidence " + lowConfidenceMainNode);
+			logger.debug("Nodes with low asrConfidence " + lowConfidenceMainNode);
 		}
 		
 		// ask to verify a phrase
@@ -127,13 +127,13 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 		graph = bg.getGraph();
 		logger.info("Asr correction done - new graph built");
 		for (INode iNode : graph.getNodes()) {
-			logger.info("rebuilt graph nodes " + iNode);
+			logger.debug("rebuilt graph nodes " + iNode);
 		}
 	}
 	
 	// ask to verify a phrase
 	protected void askForPhraseVerification(INode iNode) {
-		logger.info("Try to Verify - " + iNode);
+		logger.debug("Try to Verify - " + iNode);
 		
 		// detect the environment of the questionable part
 		INode startNode = GraphOperations.getPreviousVerbNode(iNode);
@@ -164,7 +164,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 					// do not add <eps> (it is similar to hesitations)
 				} else {	
 					question = question + textNode.getAttributeValue("value") + " ";
-					logger.info("Question " + textNode);	
+					logger.debug("Question " + textNode);	
 				}
 			}
 			
@@ -175,7 +175,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 			for (INode node : userAnswerGraph.getNodes()) {
 				if (node.getType().getName().equals("token")) {
 					answer.add(node);
-					logger.info("Answer " + node);			
+					logger.debug("Answer " + node);			
 				}
 			}
 			
@@ -188,7 +188,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 								// replace
 								textPart.get(i).setAttributeValue("value", answer.get(i).getAttributeValue("value"));
 								u = 2;
-								logger.info("case short question");
+								logger.debug("case short question");
 							}
 						}
 					}
@@ -202,13 +202,13 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 										// replace
 										textPart.get(i).setAttributeValue("value", answer.get(i).getAttributeValue("value"));
 										u = 2;
-										logger.info("case b -> y");
+										logger.debug("case b -> y");
 									} else if (textPart.get(i).getAttributeValue("value").equals(answer.get(i).getAttributeValue("value")) && 
 											(Double.parseDouble(answer.get(i).getAttributeValue("asrConfidence").toString()) > twiceSameWordConfidenceThreshold)) {
 										// replace
 										textPart.get(i).setAttributeValue("value", answer.get(i).getAttributeValue("value"));	
 										u = 2;			
-										logger.info("case b -> y");				
+										logger.debug("case b -> y");				
 									}				
 								}
 							} else if (i == 0 && i <= (textPart.size() - 3)) { // case a -> x
@@ -218,13 +218,13 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 										// replace
 										textPart.get(i).setAttributeValue("value", answer.get(i).getAttributeValue("value"));
 										u = 2;
-										logger.info("case a -> x");	
+										logger.debug("case a -> x");	
 									} else if (textPart.get(i).getAttributeValue("value").equals(answer.get(i).getAttributeValue("value")) && 
 											(Double.parseDouble(answer.get(i).getAttributeValue("asrConfidence").toString()) > twiceSameWordConfidenceThreshold)) {
 										// replace
 										textPart.get(i).setAttributeValue("value", answer.get(i).getAttributeValue("value"));
 										u = 2;		
-										logger.info("case a -> x");							
+										logger.debug("case a -> x");							
 									}			
 								}
 							} else if (i > 0 && i == (textPart.size() - 1)) { // case c -> z
@@ -234,13 +234,13 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 										// replace
 										textPart.get(i).setAttributeValue("value", answer.get(i).getAttributeValue("value"));
 										u = 2;
-										logger.info("case c -> z");	
+										logger.debug("case c -> z");	
 									} else if (textPart.get(i).getAttributeValue("value").equals(answer.get(i).getAttributeValue("value")) && 
 											(Double.parseDouble(answer.get(i).getAttributeValue("asrConfidence").toString()) > twiceSameWordConfidenceThreshold)) {
 										// replace
 										textPart.get(i).setAttributeValue("value", answer.get(i).getAttributeValue("value"));	
 										u = 2;				
-										logger.info("case c -> z");				
+										logger.debug("case c -> z");				
 									}			
 								}
 							}	
@@ -258,7 +258,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 							// remove 
 							textPart.get(1).setAttributeValue("removeNode", true);
 							u = 2;
-							logger.info("case a,b -> x (1)");
+							logger.debug("case a,b -> x (1)");
 						}
 					}
 				} else if (lowConfidenceMainNodes.contains(textPart.get(textPart.size() - 1))) { 
@@ -270,7 +270,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 							// remove 
 							textPart.get(textPart.size() - 1).setAttributeValue("removeNode", true);
 							u = 2;
-							logger.info("case c,d -> z (1)");
+							logger.debug("case c,d -> z (1)");
 						}
 					}
 				}
@@ -287,7 +287,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 										// remove 
 										textPart.get(i).setAttributeValue("removeNode", true);
 										u = 2;
-										logger.info("case b,c -> y (1)");
+										logger.debug("case b,c -> y (1)");
 									}
 								}
 							} else if (i == 1 && i <= textPart.size() - 3) { // case a,b -> x
@@ -299,7 +299,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 										// remove 
 										textPart.get(i).setAttributeValue("removeNode", true);
 										u = 2;
-										logger.info("case a,b -> x (2)");
+										logger.debug("case a,b -> x (2)");
 									}
 								}
 							} 
@@ -313,7 +313,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 										// remove 
 										textPart.get(i + 1).setAttributeValue("removeNode", true);
 										u = 2;
-										logger.info("case b,c -> y (2)");
+										logger.debug("case b,c -> y (2)");
 									}
 								}
 							} else if (i > 2 && i == textPart.size() - 2) { // case c,d -> z
@@ -325,7 +325,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 										// remove 
 										textPart.get(i + 1).setAttributeValue("removeNode", true);
 										u = 2;
-										logger.info("case c,d -> z (2)");
+										logger.debug("case c,d -> z (2)");
 									}
 								}
 							}
@@ -346,7 +346,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 									// insert node
 									textPart.get(i).setAttributeValue("nextNodeValue", answer.get(i + 1).getAttributeValue("value").toString());
 									u = 2;
-									logger.info("case b -> x,y");
+									logger.debug("case b -> x,y");
 								} 			
 							}
 						} else if (i == 0 && i <= textPart.size() - 3) { // case a -> w,x
@@ -359,7 +359,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 									// insert node
 									textPart.get(i).setAttributeValue("nextNodeValue", answer.get(i + 1).getAttributeValue("value").toString());
 									u = 2;
-									logger.info("case a -> w,x");
+									logger.debug("case a -> w,x");
 								} 			
 							}
 						} else if (i > 0 && i == textPart.size() - 1) { // case c -> y,z
@@ -372,7 +372,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 									// insert node
 									textPart.get(i).setAttributeValue("nextNodeValue", answer.get(i + 1).getAttributeValue("value").toString());
 									u = 2;
-									logger.info("case c -> y,z");
+									logger.debug("case c -> y,z");
 								} 			
 							}
 						}	
@@ -390,7 +390,7 @@ public class WordWrongInterpreted extends AbstractDefectCategory {
 											// replace
 											textPart.get(i).setAttributeValue("value", answer.get(z + 1).getAttributeValue("value"));
 											u = 2;
-											logger.info("case fallback");
+											logger.debug("case fallback");
 											break;
 										}
 									}

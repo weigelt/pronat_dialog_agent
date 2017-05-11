@@ -12,7 +12,7 @@ public class ConfigManager {
 	static Properties props;
 	static Reader reader;
 	
-	// does not deliver any logger message, but does automatically refresh the config-file
+	// does automatically refresh the config-file
 	public static Properties getConfiguration(Class<?> clazz, String confName) {
 		String configPath = "";
 		String[] rootPath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath().split(File.separator);

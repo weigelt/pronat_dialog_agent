@@ -175,14 +175,14 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		detectContextEntityTokens(tokensEntityToAskForList, sourceContextEntity);	// explanation see comments of this method
 		
 		// log the source and target entities with confidence
-		logger.info("Source entity " + sourceContextEntity);
+		logger.debug("Source entity " + sourceContextEntity);
 		for (INode iNode : tokensEntityToAskForList) {
-			logger.info("Possible target entity " + iNode);
+			logger.debug("Possible target entity " + iNode);
 			for (IArc iArc : iNode.getIncomingArcs()) {
 				if (iArc.getType().getName().equals("contextRelation")) { 
 					if (iArc.getAttributeValue("name").equals("anaphoraReferent")) { 
 						if (iArc.getSourceNode().equals(sourceContextEntity)) {
-							logger.info("AnaphoraReferent confidence of this entity " + iArc.getAttributeValue("confidence"));
+							logger.debug("AnaphoraReferent confidence of this entity " + iArc.getAttributeValue("confidence"));
 						}
 					}
 				}
@@ -205,7 +205,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 
 		// log the question
 		for (INode iNode : textPart) {
-			logger.info("Coref question " + iNode);
+			logger.debug("Coref question " + iNode);
 		}
 
 		// ask the user and get the answer as a graph
@@ -214,13 +214,13 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 		
 		// log the answer
 		for (INode iNode : userAnswerGraph.getNodes()) {
-			logger.info("Coref answer " + iNode);
+			logger.debug("Coref answer " + iNode);
 		}
 		
 		// try to extract the correct targetEntity
 		List<INode> matchedContextEntityTokens = checkMatch(targetEntities, userAnswerGraph);
 		for (INode iNode : matchedContextEntityTokens) {
-			logger.info("Identified target context entity is " + iNode);
+			logger.debug("Identified target context entity is " + iNode);
 		}	
 		
 		boolean isNotSolved = true;
@@ -250,7 +250,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 					userAnswerGraph = GainUserAnswer.getUserAnswer();
 					matchedContextEntityTokens = checkMatch(targetEntities, userAnswerGraph);
 					if (!matchedContextEntityTokens.isEmpty() && !(matchedContextEntityTokens.size() > 1)) {
-						logger.info("Identified target context entity is " + matchedContextEntityTokens.get(0));
+						logger.debug("Identified target context entity is " + matchedContextEntityTokens.get(0));
 					}
 					secondQuestionAsked = true;
 				} else {	// if second question did not help
@@ -282,7 +282,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 							}
 							if (answer.size() == 1 && answer.get(0).getAttributeValue("value").toString().equals("yes")) {
 								matchedContextEntityTokens.add(targetEntities.get(i));
-								logger.info("Identified target context entity is " + targetEntities.get(i));
+								logger.debug("Identified target context entity is " + targetEntities.get(i));
 								i = targetEntities.size(); 	
 								// target entity found update the graph and stop the loop
 								updateAnaphoraReferent(sourceContextEntity, matchedContextEntityTokens.get(matchedContextEntityTokens.size()-1));
@@ -299,7 +299,7 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 						if (counter == allContextEntities.keySet().size()) {
 							// nothing fits set all considered anaphoraReferent arcs 0.0
 							setAnaphoraReferentArcsZero(sourceContextEntity);
-							logger.info("None of the above is a target context entity. All considered anaphoraReferent arc confidences are set 0.0.");
+							logger.debug("None of the above is a target context entity. All considered anaphoraReferent arc confidences are set 0.0.");
 							isNotSolved = false;
 						}					
 					}
@@ -525,12 +525,12 @@ public class CorefWrongReferenced extends AbstractDefectCategory {
 			if (iArc.getType().getName().equals("contextRelation")) {
 				if (iArc.getAttributeValue("name").equals("anaphoraReferent")) {
 					INode anaphoraSourceNode = iArc.getSourceNode();
-					logger.info("anaphora source token " + detectContextEntityElements(anaphoraSourceNode));
-					logger.info(" anaphora source context entity " + anaphoraSourceNode);
-					logger.info("  anaphora arc "+ arcToString(iArc));
+					logger.debug("anaphora source token " + detectContextEntityElements(anaphoraSourceNode));
+					logger.debug(" anaphora source context entity " + anaphoraSourceNode);
+					logger.debug("  anaphora arc "+ arcToString(iArc));
 					INode anaphoraTargetNode = iArc.getTargetNode();
-					logger.info(" anaphora target context entity " + anaphoraTargetNode);
-					logger.info("anaphora target token " + detectContextEntityElements(anaphoraTargetNode));
+					logger.debug(" anaphora target context entity " + anaphoraTargetNode);
+					logger.debug("anaphora target token " + detectContextEntityElements(anaphoraTargetNode));
 				}
 			}
 		}	
