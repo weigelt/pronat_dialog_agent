@@ -11,23 +11,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>ProNat Dialog Agent</name>
 
-    <repositories>
-        <repository>
-            <id>ipdNexus-public-releases</id>
-            <name>IPD-Repository</name>
-            <url>http://bob.ipd.kit.edu/nexus/repository/maven-public-all/</url>
-        </repository>
-        <!--		<repository>-->
-        <!--			<id>speech</id>-->
-        <!--			<name>speech</name>-->
-        <!--			<url>http://maven.it.su.se/it.su.se/maven2</url>-->
-        <!--		</repository>-->
-        <!--		<repository>-->
-        <!--			<id>java.net-m2</id>-->
-        <!--			<name>java.net - Maven 2</name>-->
-        <!--			<url>https://repository.jboss.org/nexus/content/repositories/java.net-m2</url>-->
-        <!--		</repository>-->
-    </repositories>
     <build>
         <plugins>
             <plugin>
