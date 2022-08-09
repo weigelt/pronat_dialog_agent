@@ -48,12 +48,10 @@
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>asr</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>graph_builder</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.parse</groupId>
@@ -67,37 +65,30 @@
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>shallow_nlp</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>ner</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>babelfy_wsd</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>srl</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>context</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>condition_detection</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>edu.kit.ipd.pronat</groupId>
             <artifactId>coref</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -121,6 +112,18 @@
             <groupId>org.kohsuke.metainf-services</groupId>
             <artifactId>metainf-services</artifactId>
         </dependency>
+        <dependency>
+            <groupId>edu.kit.ipd.pronat</groupId>
+            <artifactId>shallow_nlp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.kit.ipd.pronat</groupId>
+            <artifactId>ner</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.kit.ipd.pronat</groupId>
+            <artifactId>pre_pipeline_data_model</artifactId>
+        </dependency>
         <!--        <dependency>-->
         <!--            <groupId>javax.speech</groupId>-->
         <!--            <artifactId>jsapi</artifactId>-->
@@ -131,11 +134,11 @@
         <!--            <artifactId>java-flac-encoder</artifactId>-->
         <!--            <version>0.3.6</version>-->
         <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>jflac</groupId>-->
-        <!--            <artifactId>jflac</artifactId>-->
-        <!--            <version>1.3</version>-->
-        <!--        </dependency>-->
+                <dependency>
+                    <groupId>jflac</groupId>
+                    <artifactId>jflac</artifactId>
+                    <version>1.3</version>
+                </dependency>
     </dependencies>
     <properties>
         <pronat_bundle.directory>../pronat_bundle</pronat_bundle.directory>
