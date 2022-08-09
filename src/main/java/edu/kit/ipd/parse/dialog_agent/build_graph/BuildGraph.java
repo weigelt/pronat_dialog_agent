@@ -1,22 +1,22 @@
 package edu.kit.ipd.parse.dialog_agent.build_graph;
 
-import java.nio.file.Path;
-
-import edu.kit.ipd.parse.conditionDetection.ConditionDetector;
-import edu.kit.ipd.parse.contextanalyzer.ContextAnalyzer;
-import edu.kit.ipd.parse.corefanalyzer.CorefAnalyzer;
 import edu.kit.ipd.parse.dialog_agent.DialogAgent;
-import edu.kit.ipd.parse.graphBuilder.GraphBuilder;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
-import edu.kit.ipd.parse.luna.data.PrePipelineData;
 import edu.kit.ipd.parse.luna.graph.IGraph;
 import edu.kit.ipd.parse.luna.pipeline.PipelineStageException;
-import edu.kit.ipd.parse.luna.tools.StringToHypothesis;
-import edu.kit.ipd.parse.multiasr.MultiASRPipelineStage;
-import edu.kit.ipd.parse.ner.NERTagger;
-import edu.kit.ipd.parse.shallownlp.ShallowNLP;
-import edu.kit.ipd.parse.srlabeler.SRLabeler;
-import edu.kit.ipd.parse.wsd.Wsd;
+import edu.kit.ipd.pronat.babelfy_wsd.Wsd;
+import edu.kit.ipd.pronat.condition_detection.ConditionDetector;
+import edu.kit.ipd.pronat.context.ContextAnalyzer;
+import edu.kit.ipd.pronat.coref.CorefAnalyzer;
+import edu.kit.ipd.pronat.graph_builder.GraphBuilder;
+import edu.kit.ipd.pronat.multiasr.MultiASRPipelineStage;
+import edu.kit.ipd.pronat.ner.NERTagger;
+import edu.kit.ipd.pronat.prepipedatamodel.PrePipelineData;
+import edu.kit.ipd.pronat.prepipedatamodel.tools.StringToHypothesis;
+import edu.kit.ipd.pronat.shallow_nlp.ShallowNLP;
+import edu.kit.ipd.pronat.srl.SRLabeler;
+
+import java.nio.file.Path;
 
 public class BuildGraph {
 	
@@ -49,7 +49,7 @@ public class BuildGraph {
 		this.agentMode = agentMode;
 		this.audioFile = false;
 		init();
-		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(text));		
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(text));
 		exec();
 	}
 	
